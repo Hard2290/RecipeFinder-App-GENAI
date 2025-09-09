@@ -294,13 +294,22 @@ async def get_status_checks():
 async def search_recipes(request: RecipeSearchRequest):
     """Search for recipes based on ingredients using AI generation"""
     try:
+        # Validate ingredients
+        if not request.ingredients or not request.ingredients.strip():
+            raise HTTPException(status_code=422, detail="Please provide at least one ingredient")
+        
+        # Check if we have at least 2 ingredients
+        ingredient_list = [ing.strip() for ing in request.ingredients.split(',') if ing.strip()]
+        if len(ingredient_list) < 2:
+            raise HTTPException(status_code=422, detail="Please provide at least 2 ingredients separated by commas")
+        
         # Generate recipes using LLM
         logging.info(f"Generating recipes for ingredients: {request.ingredients}")
         recipes = await generate_recipes_with_llm(request.ingredients, request.cuisine)
         
         if not recipes:
             logging.warning("LLM failed to generate recipes, returning empty result")
-            # Return empty categorized response
+            # Return empty categorized response but don't raise error
             return RecipeSearchResponse(
                 low={"with_onion_garlic": [], "without_onion_garlic": []},
                 medium={"with_onion_garlic": [], "without_onion_garlic": []},
@@ -313,9 +322,12 @@ async def search_recipes(request: RecipeSearchRequest):
         result = categorize_recipes(recipes)
         return result
         
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
     except Exception as e:
         logging.error(f"Unexpected error in recipe search: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to generate recipes")
+        raise HTTPException(status_code=500, detail=f"Failed to generate recipes: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)
