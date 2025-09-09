@@ -1055,16 +1055,28 @@ body {
   box-shadow: var(--shadow-light);
 }
 
-/* Header enhancements for authentication */
+/* Fixed header layout */
 .header-top {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
   margin-bottom: 15px;
+  position: relative;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
 }
 
 .auth-section {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 15px;
