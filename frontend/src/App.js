@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Badge } from './components/ui/badge';
 import { Progress } from './components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
-import { Clock, ChefHat, Zap, Timer, X, Users, Eye } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
+import { Clock, ChefHat, Zap, Timer, X, Users, Eye, Mic, MicOff, Filter } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -20,6 +21,33 @@ const App = () => {
   const [error, setError] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Voice recognition states
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState(null);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  
+  // Cuisine filter state
+  const [selectedCuisine, setSelectedCuisine] = useState('any');
+  
+  // Cuisine options
+  const cuisineOptions = [
+    { value: 'any', label: 'Any Cuisine' },
+    { value: 'italian', label: '🇮🇹 Italian' },
+    { value: 'chinese', label: '🇨🇳 Chinese' },
+    { value: 'indian', label: '🇮🇳 Indian' },
+    { value: 'mexican', label: '🇲🇽 Mexican' },
+    { value: 'japanese', label: '🇯🇵 Japanese' },
+    { value: 'thai', label: '🇹🇭 Thai' },
+    { value: 'mediterranean', label: '🌊 Mediterranean' },
+    { value: 'french', label: '🇫🇷 French' },
+    { value: 'american', label: '🇺🇸 American' },
+    { value: 'korean', label: '🇰🇷 Korean' },
+    { value: 'spanish', label: '🇪🇸 Spanish' },
+    { value: 'greek', label: '🇬🇷 Greek' },
+    { value: 'turkish', label: '🇹🇷 Turkish' },
+    { value: 'lebanese', label: '🇱🇧 Lebanese' }
+  ];
   
   const openRecipeModal = (recipe) => {
     setSelectedRecipe(recipe);
