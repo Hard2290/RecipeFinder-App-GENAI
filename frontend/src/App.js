@@ -244,7 +244,7 @@ const App = () => {
           
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="view-recipe-btn" size="sm" onClick={() => setSelectedRecipe(recipe)}>
+              <Button className="view-recipe-btn" size="sm">
                 <Eye className="w-4 h-4 mr-2" />
                 View Recipe
               </Button>
