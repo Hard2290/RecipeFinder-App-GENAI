@@ -1138,16 +1138,20 @@ body {
   }
   
   .logo-section {
-    gap: 5px; /* Very small gap on tiny screens */
+    gap: 1px; /* Minimal gap on tiny screens */
+    align-items: center;
+    justify-content: center;
   }
   
   .logo-icon {
-    width: 35px; /* Even smaller icon for tiny screens */
-    height: 35px;
+    width: 32px; /* Even smaller icon for tiny screens */
+    height: 32px;
   }
   
   .app-title {
     font-size: 1.8rem;
+    line-height: 0.9; /* Tight line height */
+    margin-left: 0; /* No extra margin */
   }
   
   .ingredient-input {
