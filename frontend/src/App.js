@@ -58,6 +58,22 @@ const App = () => {
     setIsModalOpen(false);
     setSelectedRecipe(null);
   };
+
+  // Voice recognition functions
+  const startListening = () => {
+    if (recognition && !isListening) {
+      setError('');
+      setIsListening(true);
+      recognition.start();
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition && isListening) {
+      recognition.stop();
+      setIsListening(false);
+    }
+  };
   
   // Floating food icons
   const foodIcons = ['🍅', '🥕', '🧄', '🧅', '🥬', '🌶️', '🍄', '🥒', '🥖'];
