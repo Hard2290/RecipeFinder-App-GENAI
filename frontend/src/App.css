@@ -298,17 +298,50 @@ body {
   color: var(--primary-green);
 }
 
-.cuisine-select {
+.cuisine-select-wrapper {
+  position: relative;
+}
+
+.cuisine-select-native {
   min-width: 200px;
+  height: 40px;
   border: none;
   background: transparent;
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 14px;
+  padding: 0 32px 0 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232E7D32' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  transition: all 0.3s ease;
 }
 
-.cuisine-select:focus {
-  outline: none;
-  box-shadow: none;
+.cuisine-select-native:hover {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.cuisine-select-native:focus {
+  background-color: rgba(46, 125, 50, 0.1);
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+.cuisine-select-native option {
+  background: white;
+  color: var(--text-primary);
+  padding: 8px;
+  font-weight: 500;
+}
+
+.cuisine-select-native option:hover {
+  background: rgba(46, 125, 50, 0.1);
 }
 
 /* Input with Voice */
