@@ -951,6 +951,18 @@ const RecipeFinderApp = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Authentication Modal */}
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+        />
+
+        {/* Your Recipes Page */}
+        <YourRecipesPage
+          isOpen={isYourRecipesOpen}
+          onClose={() => setIsYourRecipesOpen(false)}
+        />
       </div>
     </div>
   );
