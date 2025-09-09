@@ -196,6 +196,7 @@ const App = () => {
     try {
       const response = await axios.post(`${BACKEND_URL}/api/recipes/search`, {
         ingredients: ingredients.trim(),
+        cuisine: selectedCuisine,
         number: 100
       });
 
