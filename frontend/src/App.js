@@ -157,15 +157,16 @@ const App = () => {
           .filter(word => word.length > 2) // Filter out very short words
           .join(', ');                  // Join with commas
         
-        // Always add to existing ingredients (cumulative)
-        const currentValue = ingredients.trim();
+        // Always add to existing ingredients (cumulative) - use ref for current value
+        const currentValue = ingredientsRef.current.trim();
         const newValue = currentValue ? `${currentValue}, ${processedTranscript}` : processedTranscript;
         
-        console.log('Voice Input - Current:', currentValue);
+        console.log('Voice Input - Current from ref:', currentValue);
         console.log('Voice Input - New transcript:', processedTranscript);
         console.log('Voice Input - Final value:', newValue);
         
         setIngredients(newValue);
+        ingredientsRef.current = newValue; // Update ref
         handleIngredientInput({ target: { value: newValue } });
         setIsListening(false);
         
