@@ -132,7 +132,7 @@ def categorize_recipes(recipes: List[Recipe]) -> RecipeSearchResponse:
         }
     )
 
-async def generate_recipes_with_llm(ingredients: str) -> List[Recipe]:
+async def generate_recipes_with_llm(ingredients: str, cuisine: str = 'any') -> List[Recipe]:
     """Generate diverse recipes using LLM based on user ingredients"""
     try:
         # Initialize LLM chat
