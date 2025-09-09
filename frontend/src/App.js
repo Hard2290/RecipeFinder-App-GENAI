@@ -62,6 +62,66 @@ const RecipeFinderApp = () => {
     { value: 'lebanese', label: '🇱🇧 Lebanese' }
   ];
   
+  // Recipe saving functions
+  const saveRecipe = async (recipe) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    try {
+      await axios.post(`${BACKEND_URL}/api/recipes/save-favorite`, {
+        recipe_data: recipe
+      }, {
+        headers: getAuthHeaders()
+      });
+      
+      setSavedRecipeIds(prev => new Set([...prev, recipe.id]));
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      if (error.response?.status === 400) {
+        // Recipe already saved - just update UI
+        setSavedRecipeIds(prev => new Set([...prev, recipe.id]));
+      }
+    }
+  };
+
+  const unsaveRecipe = async (recipe) => {
+    try {
+      await axios.delete(`${BACKEND_URL}/api/recipes/remove-favorite/${recipe.id}`, {
+        headers: getAuthHeaders()
+      });
+      
+      setSavedRecipeIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(recipe.id);
+        return newSet;
+      });
+    } catch (error) {
+      console.error('Error removing recipe:', error);
+    }
+  };
+
+  // Load saved recipe IDs when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadSavedRecipes = async () => {
+        try {
+          const response = await axios.get(`${BACKEND_URL}/api/recipes/favorites`, {
+            headers: getAuthHeaders()
+          });
+          const savedIds = new Set(response.data.recipes.map(recipe => recipe.id));
+          setSavedRecipeIds(savedIds);
+        } catch (error) {
+          console.error('Error loading saved recipes:', error);
+        }
+      };
+      loadSavedRecipes();
+    } else {
+      setSavedRecipeIds(new Set());
+    }
+  }, [isAuthenticated, getAuthHeaders]);
+
   const openRecipeModal = (recipe) => {
     setSelectedRecipe(recipe);
     setIsModalOpen(true);
