@@ -296,7 +296,7 @@ async def search_recipes(request: RecipeSearchRequest):
     try:
         # Generate recipes using LLM
         logging.info(f"Generating recipes for ingredients: {request.ingredients}")
-        recipes = await generate_recipes_with_llm(request.ingredients)
+        recipes = await generate_recipes_with_llm(request.ingredients, request.cuisine)
         
         if not recipes:
             logging.warning("LLM failed to generate recipes, returning empty result")
