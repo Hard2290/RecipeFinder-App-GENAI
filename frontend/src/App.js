@@ -524,10 +524,50 @@ const RecipeFinderApp = () => {
         {/* Header */}
         <header className="app-header">
           <div className="header-content">
-            <div className="logo-section">
-              <ChefHat className="logo-icon" />
-              <h1 className="app-title">My Kitchen Recipe Finder</h1>
+            <div className="header-top">
+              <div className="logo-section">
+                <ChefHat className="logo-icon" />
+                <h1 className="app-title">My Kitchen Recipe Finder</h1>
+              </div>
+              
+              <div className="auth-section">
+                {isAuthenticated ? (
+                  <div className="user-menu">
+                    <Button
+                      onClick={() => setIsYourRecipesOpen(true)}
+                      className="your-recipes-btn"
+                      variant="outline"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Your Recipes
+                    </Button>
+                    
+                    <div className="user-info">
+                      <User className="w-4 h-4" />
+                      <span>{user?.name}</span>
+                    </div>
+                    
+                    <Button
+                      onClick={logout}
+                      className="logout-btn"
+                      variant="outline"
+                      size="sm"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className="login-btn"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                )}
+              </div>
             </div>
+            
             <p className="app-subtitle">Transform your kitchen ingredients into culinary masterpieces</p>
             <div className="motivation-text">
               <span>Start your cooking adventure today!</span>
