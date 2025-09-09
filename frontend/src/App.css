@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
 
+/* Global ResizeObserver fix */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent ResizeObserver errors by ensuring stable layouts */
+body, html {
+  overflow-x: hidden;
+}
+
 /* CSS Variables */
 :root {
   --primary-green: #2E7D32;
