@@ -478,12 +478,32 @@ const RecipeFinderApp = () => {
   const RecipeCard = ({ recipe }) => {
     const nutrition = recipe.nutrition;
     const maxNutrient = Math.max(nutrition.protein, nutrition.carbs, nutrition.fat, nutrition.fiber);
+    const isSaved = savedRecipeIds.has(recipe.id);
+
+    const handleSaveToggle = (e) => {
+      e.stopPropagation();
+      if (isSaved) {
+        unsaveRecipe(recipe);
+      } else {
+        saveRecipe(recipe);
+      }
+    };
 
     return (
       <Card className="recipe-card h-full">
-        <div className="recipe-time-badge-header">
-          <Clock className="w-3 h-3" />
-          <span>{recipe.readyInMinutes} min</span>
+        <div className="recipe-header-actions">
+          <div className="recipe-time-badge-header">
+            <Clock className="w-3 h-3" />
+            <span>{recipe.readyInMinutes} min</span>
+          </div>
+          
+          <button 
+            className={`heart-btn ${isSaved ? 'saved' : ''}`}
+            onClick={handleSaveToggle}
+            title={isSaved ? 'Remove from favorites' : 'Save to favorites'}
+          >
+            <Heart className={`w-4 h-4 ${isSaved ? 'filled' : ''}`} />
+          </button>
         </div>
         
         <CardHeader className="pb-2">
