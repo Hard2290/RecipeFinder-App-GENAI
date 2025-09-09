@@ -217,8 +217,10 @@ const YourRecipesPage = ({ isOpen, onClose }) => {
             <TabsContent value="favorites" className="tab-content">
               <div className="recipes-section">
                 <div className="section-header">
-                  <h3>Your Favorite Recipes</h3>
-                  <p>Recipes you've saved from search results</p>
+                  <div className="section-text">
+                    <h3>Your Favorite Recipes</h3>
+                    <p>Recipes you've saved from search results</p>
+                  </div>
                 </div>
                 
                 {loading ? (
