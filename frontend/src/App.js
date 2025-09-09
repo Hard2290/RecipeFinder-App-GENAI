@@ -6,7 +6,8 @@ import { Card, CardHeader, CardContent } from './components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Badge } from './components/ui/badge';
 import { Progress } from './components/ui/progress';
-import { Clock, ChefHat, Zap, Timer, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
+import { Clock, ChefHat, Zap, Timer, X, Users, Eye } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -17,6 +18,7 @@ const App = () => {
   const [recipes, setRecipes] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const handleIngredientInput = (e) => {
     const value = e.target.value;
@@ -77,6 +79,90 @@ const App = () => {
     if (e.key === 'Enter') {
       searchRecipes();
     }
+  };
+
+  const RecipeModal = ({ recipe, onClose }) => {
+    if (!recipe) return null;
+
+    return (
+      <DialogContent className="recipe-modal max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="recipe-modal-title">{recipe.title}</DialogTitle>
+        </DialogHeader>
+        
+        <div className="recipe-modal-content">
+          <div className="recipe-modal-image">
+            <img 
+              src={recipe.image || '/api/placeholder/600/300'} 
+              alt={recipe.title}
+              className="modal-image"
+            />
+          </div>
+          
+          <div className="recipe-modal-info">
+            <div className="recipe-modal-stats">
+              <div className="stat-item">
+                <Clock className="stat-icon" />
+                <span>{recipe.readyInMinutes} min</span>
+              </div>
+              <div className="stat-item">
+                <Users className="stat-icon" />
+                <span>{recipe.servings} servings</span>
+              </div>
+              <div className="stat-item">
+                <div className="calories-large">
+                  <span className="calories-number-large">{Math.round(recipe.nutrition.calories)}</span>
+                  <span className="calories-text-large">cal</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="nutrition-detailed">
+              <h3>Nutritional Information</h3>
+              <div className="nutrition-grid">
+                <div className="nutrition-detail-item">
+                  <span className="nutrition-label">Protein</span>
+                  <span className="nutrition-value">{Math.round(recipe.nutrition.protein)}g</span>
+                  <Progress value={(recipe.nutrition.protein / 50) * 100} className="nutrition-bar nutrition-protein" />
+                </div>
+                <div className="nutrition-detail-item">
+                  <span className="nutrition-label">Carbohydrates</span>
+                  <span className="nutrition-value">{Math.round(recipe.nutrition.carbs)}g</span>
+                  <Progress value={(recipe.nutrition.carbs / 80) * 100} className="nutrition-bar nutrition-carbs" />
+                </div>
+                <div className="nutrition-detail-item">
+                  <span className="nutrition-label">Fats</span>
+                  <span className="nutrition-value">{Math.round(recipe.nutrition.fat)}g</span>
+                  <Progress value={(recipe.nutrition.fat / 30) * 100} className="nutrition-bar nutrition-fats" />
+                </div>
+                <div className="nutrition-detail-item">
+                  <span className="nutrition-label">Fiber</span>
+                  <span className="nutrition-value">{Math.round(recipe.nutrition.fiber)}g</span>
+                  <Progress value={(recipe.nutrition.fiber / 25) * 100} className="nutrition-bar nutrition-fiber" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="ingredients-section">
+              <h3>Ingredients</h3>
+              <div className="ingredients-list">
+                {recipe.ingredients.map((ingredient, index) => (
+                  <Badge key={index} variant="outline" className="ingredient-badge">
+                    {ingredient}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            
+            <div className="recipe-notes">
+              <h3>Recipe Notes</h3>
+              <p>This {recipe.hasOnionGarlic ? 'traditional' : 'onion-garlic free'} recipe serves {recipe.servings} people and can be prepared in approximately {recipe.readyInMinutes} minutes.</p>
+              <p>Perfect for a {recipe.readyInMinutes < 20 ? 'quick meal' : recipe.readyInMinutes < 45 ? 'medium-prep dish' : 'leisurely cooking session'} when you have {recipe.ingredients.slice(0, 3).join(', ')} available.</p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    );
   };
 
   const RecipeCard = ({ recipe }) => {
@@ -156,9 +242,15 @@ const App = () => {
             </div>
           </div>
           
-          <Button className="view-recipe-btn" size="sm">
-            View Recipe
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="view-recipe-btn" size="sm" onClick={() => setSelectedRecipe(recipe)}>
+                <Eye className="w-4 h-4 mr-2" />
+                View Recipe
+              </Button>
+            </DialogTrigger>
+            <RecipeModal recipe={recipe} />
+          </Dialog>
         </CardContent>
       </Card>
     );
