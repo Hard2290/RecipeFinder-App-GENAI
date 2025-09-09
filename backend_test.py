@@ -327,57 +327,67 @@ class RecipeFinderAPITester:
             print("❌ LLM integration test failed")
             return False
 
-    def test_spoonacular_api_directly(self):
-        """Test Spoonacular API directly to check if the issue is with external API"""
-        print("\n🌐 Testing Spoonacular API Directly:")
+    def test_recipe_categorization_accuracy(self):
+        """Test if recipes are properly categorized by cooking time and dietary preferences"""
+        print("\n⏱️ Testing Recipe Categorization Accuracy:")
         
-        spoonacular_url = "https://api.spoonacular.com/recipes/complexSearch"
-        params = {
-            'apiKey': '2d95307d33454c42bcdf5d4c7507a20c',
-            'includeIngredients': 'chicken,rice,tomatoes',
-            'number': 10,
-            'addRecipeInformation': 'true',
-            'addRecipeNutrition': 'true',
-            'fillIngredients': 'true',
-            'sort': 'max-used-ingredients',
-            'ranking': 2
+        test_data = {
+            "ingredients": "chicken, onion, garlic, rice, tomatoes, spinach",
+            "cuisine": "any",
+            "number": 20
         }
         
-        try:
-            response = requests.get(spoonacular_url, params=params, timeout=30)
-            print(f"Spoonacular API Status: {response.status_code}")
+        success, response = self.run_test(
+            "Recipe Categorization Test", 
+            "POST", 
+            "api/recipes/search", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            categorization_correct = True
             
-            if response.status_code == 200:
-                data = response.json()
-                results = data.get('results', [])
-                print(f"Spoonacular returned {len(results)} recipes")
-                
-                if results:
-                    sample = results[0]
-                    print(f"Sample recipe: {sample.get('title', 'N/A')}")
-                    print(f"Ready in: {sample.get('readyInMinutes', 'N/A')} minutes")
-                    print(f"Extended ingredients count: {len(sample.get('extendedIngredients', []))}")
+            for category_name, time_range in [('low', '<20'), ('medium', '20-45'), ('high', '>45')]:
+                if category_name in response:
+                    category = response[category_name]
                     
-                    # Check if nutrition data exists
-                    nutrition = sample.get('nutrition', {})
-                    if nutrition:
-                        nutrients = nutrition.get('nutrients', [])
-                        print(f"Nutrition data available: {len(nutrients)} nutrients")
-                    else:
-                        print("⚠️  No nutrition data in Spoonacular response")
-                        
-                    return True
-                else:
-                    print("⚠️  Spoonacular returned empty results")
-                    return False
+                    # Check both subcategories
+                    for subcategory in ['with_onion_garlic', 'without_onion_garlic']:
+                        if subcategory in category:
+                            recipes = category[subcategory]
+                            
+                            for recipe in recipes:
+                                ready_time = recipe.get('readyInMinutes', 0)
+                                has_onion_garlic = recipe.get('hasOnionGarlic', False)
+                                
+                                # Verify time categorization
+                                if category_name == 'low' and ready_time >= 20:
+                                    print(f"❌ Time categorization error: Recipe '{recipe.get('title')}' in 'low' but takes {ready_time} minutes")
+                                    categorization_correct = False
+                                elif category_name == 'medium' and (ready_time < 20 or ready_time > 45):
+                                    print(f"❌ Time categorization error: Recipe '{recipe.get('title')}' in 'medium' but takes {ready_time} minutes")
+                                    categorization_correct = False
+                                elif category_name == 'high' and ready_time <= 45:
+                                    print(f"❌ Time categorization error: Recipe '{recipe.get('title')}' in 'high' but takes {ready_time} minutes")
+                                    categorization_correct = False
+                                
+                                # Verify dietary categorization
+                                if subcategory == 'with_onion_garlic' and not has_onion_garlic:
+                                    print(f"❌ Dietary categorization error: Recipe '{recipe.get('title')}' in 'with_onion_garlic' but hasOnionGarlic is False")
+                                    categorization_correct = False
+                                elif subcategory == 'without_onion_garlic' and has_onion_garlic:
+                                    print(f"❌ Dietary categorization error: Recipe '{recipe.get('title')}' in 'without_onion_garlic' but hasOnionGarlic is True")
+                                    categorization_correct = False
+            
+            if categorization_correct:
+                print("✅ Recipe categorization is accurate")
+                return True
             else:
-                print(f"❌ Spoonacular API failed: {response.status_code}")
-                print(f"Response: {response.text[:200]}...")
+                print("❌ Recipe categorization has errors")
                 return False
-                
-        except Exception as e:
-            print(f"❌ Error calling Spoonacular API: {str(e)}")
-            return False
+        
+        return False
 
 def main():
     print("🧪 Recipe Finder API Testing Suite")
