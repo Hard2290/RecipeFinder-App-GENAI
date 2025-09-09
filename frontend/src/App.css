@@ -733,21 +733,26 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+/* Recipe header with icon next to title */
+.recipe-header-with-icon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .recipe-title {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin: 0;
   line-height: 1.4;
   padding-right: 100px; /* Space for the time badge */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  min-height: 2.8rem; /* Ensure space for 2 lines */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: visible; /* Allow text to show */
+  flex: 1;
 }
 
 .recipe-calories {
