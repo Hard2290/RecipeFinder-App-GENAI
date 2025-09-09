@@ -8,7 +8,7 @@ import { Badge } from './components/ui/badge';
 import { Progress } from './components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
-import { Clock, ChefHat, Zap, Timer, X, Users, Eye, Mic, MicOff, Filter } from 'lucide-react';
+import { Clock, ChefHat, Zap, Timer, X, Users, Eye, Mic, MicOff, Filter, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -74,6 +74,14 @@ const App = () => {
       setIsListening(false);
     }
   };
+
+  // Clear all ingredients function
+  const clearAllIngredients = () => {
+    setIngredients('');
+    setIngredientTags([]);
+    setRecipes(null);
+    setError('');
+  };
   
   // Floating food icons
   const foodIcons = ['🍅', '🥕', '🧄', '🧅', '🥬', '🌶️', '🍄', '🥒', '🥖'];
@@ -81,11 +89,11 @@ const App = () => {
   
   // Cooking tips
   const cookingTips = [
-    "💡 Fresh ingredients make the biggest difference!",
-    "💡 Don't be afraid to experiment with spices!",
-    "💡 Taste as you cook and adjust seasoning!",
-    "💡 Mise en place - prep everything before cooking!",
-    "💡 Cook with love and your food will taste amazing!"
+    "Fresh ingredients make the biggest difference!",
+    "Don't be afraid to experiment with spices!",
+    "Taste as you cook and adjust seasoning!",
+    "Mise en place - prep everything before cooking!",
+    "Cook with love and your food will taste amazing!"
   ];
   const [currentTip, setCurrentTip] = useState(0);
 
@@ -224,12 +232,16 @@ const App = () => {
         ingredients: ingredients.trim(),
         cuisine: selectedCuisine,
         number: 100
+      }, {
+        timeout: 60000 // 60 second timeout
       });
 
       setRecipes(response.data);
     } catch (err) {
       console.error('Error searching recipes:', err);
-      if (err.response?.status === 504) {
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setError('Request timed out. The AI is taking longer than usual. Please try again.');
+      } else if (err.response?.status === 504) {
         setError('Connection timeout. Please try again.');
       } else if (err.response?.status === 502) {
         setError('AI service temporarily unavailable. Please try again in a moment.');
@@ -501,26 +513,40 @@ const App = () => {
                   onKeyPress={handleKeyPress}
                   className="ingredient-input"
                 />
-                {voiceSupported && (
-                  <Button
-                    type="button"
-                    onClick={isListening ? stopListening : startListening}
-                    className={`voice-button ${isListening ? 'listening' : ''}`}
-                    disabled={loading}
-                  >
-                    {isListening ? (
-                      <>
-                        <MicOff className="w-5 h-5" />
-                        <span className="voice-indicator">Listening...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="w-5 h-5" />
-                        <span className="voice-text">Voice</span>
-                      </>
-                    )}
-                  </Button>
-                )}
+                <div className="voice-controls">
+                  {voiceSupported && (
+                    <Button
+                      type="button"
+                      onClick={isListening ? stopListening : startListening}
+                      className={`voice-button ${isListening ? 'listening' : ''}`}
+                      disabled={loading}
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff className="w-5 h-5" />
+                          <span className="voice-indicator">Listening...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-5 h-5" />
+                          <span className="voice-text">Voice</span>
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  {ingredientTags.length > 0 && (
+                    <Button
+                      type="button"
+                      onClick={clearAllIngredients}
+                      className="clear-button"
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="clear-text">Clear</span>
+                    </Button>
+                  )}
+                </div>
               </div>
               <Button 
                 onClick={searchRecipes}
@@ -560,8 +586,8 @@ const App = () => {
             {/* Cooking Tips */}
             {!loading && !recipes && !error && ingredientTags.length === 0 && (
               <div className="cooking-tips">
-                <div className="cooking-tip-text">
-                  {cookingTips[currentTip]}
+                <div className="cooking-tip-text-enhanced">
+                  💡 {cookingTips[currentTip]}
                 </div>
               </div>
             )}
