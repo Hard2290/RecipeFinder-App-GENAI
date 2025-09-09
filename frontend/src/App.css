@@ -1677,6 +1677,21 @@ body {
     order: -1; /* Put user info first on mobile */
   }
   
+  /* Mobile responsive for recipe header with icon */
+  .recipe-header-with-icon {
+    gap: 8px; /* Smaller gap on mobile */
+  }
+  
+  .recipe-type-icon {
+    width: 28px; /* Smaller icon on mobile */
+    height: 28px;
+  }
+  
+  .recipe-title {
+    font-size: 1.1rem; /* Slightly smaller title on mobile */
+    padding-right: 60px; /* Less padding on mobile */
+  }
+  
   .input-container {
     flex-direction: column;
     gap: 10px;
