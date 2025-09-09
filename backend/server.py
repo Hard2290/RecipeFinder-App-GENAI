@@ -237,6 +237,84 @@ def categorize_recipes(recipes: List[Recipe]) -> RecipeSearchResponse:
         }
     )
 
+async def analyze_custom_recipe_nutrition(ingredients: List[str], servings: int) -> tuple[RecipeNutrition, int]:
+    """Analyze nutrition and cooking time for custom recipe using LLM"""
+    try:
+        # Initialize LLM chat
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"nutrition_analysis_{uuid.uuid4()}",
+            system_message="""You are a professional nutritionist and chef. Analyze the provided ingredients and estimate realistic nutritional information and cooking time.
+
+Return your analysis in this exact JSON format:
+{
+  "nutrition": {
+    "calories": 350.0,
+    "protein": 20.0,
+    "carbs": 35.0,
+    "fat": 15.0,
+    "fiber": 6.0
+  },
+  "readyInMinutes": 25,
+  "reasoning": "Brief explanation of your estimates"
+}
+
+Provide realistic estimates based on:
+1. Standard portion sizes and ingredient densities
+2. Common nutritional values for ingredients
+3. Typical cooking times for the preparation method
+4. The number of servings specified"""
+        ).with_model("openai", "gpt-4o-mini")
+        
+        ingredients_str = ", ".join(ingredients)
+        user_message = UserMessage(
+            text=f"""Analyze the nutritional content and cooking time for a recipe with these ingredients: {ingredients_str}
+
+This recipe serves {servings} people.
+
+Please provide:
+1. Realistic nutritional information per serving
+2. Estimated cooking time in minutes
+3. Brief reasoning for your estimates
+
+Return only the JSON response, no other text."""
+        )
+        
+        # Get response from LLM with timeout handling
+        try:
+            response = await asyncio.wait_for(chat.send_message(user_message), timeout=30.0)
+        except asyncio.TimeoutError:
+            logging.error("LLM nutrition analysis timed out")
+            # Return default values
+            return RecipeNutrition(calories=300.0, protein=15.0, carbs=30.0, fat=10.0, fiber=5.0), 30
+        
+        # Parse the JSON response
+        try:
+            analysis = json.loads(response)
+            nutrition_data = analysis.get('nutrition', {})
+            
+            nutrition = RecipeNutrition(
+                calories=nutrition_data.get('calories', 300.0),
+                protein=nutrition_data.get('protein', 15.0),
+                carbs=nutrition_data.get('carbs', 30.0),
+                fat=nutrition_data.get('fat', 10.0),
+                fiber=nutrition_data.get('fiber', 5.0)
+            )
+            
+            ready_in_minutes = analysis.get('readyInMinutes', 30)
+            
+            return nutrition, ready_in_minutes
+            
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse nutrition analysis JSON: {e}")
+            # Return default values
+            return RecipeNutrition(calories=300.0, protein=15.0, carbs=30.0, fat=10.0, fiber=5.0), 30
+            
+    except Exception as e:
+        logging.error(f"Error analyzing custom recipe nutrition: {str(e)}")
+        # Return default values
+        return RecipeNutrition(calories=300.0, protein=15.0, carbs=30.0, fat=10.0, fiber=5.0), 30
+
 async def generate_recipes_with_llm(ingredients: str, cuisine: str = 'any') -> List[Recipe]:
     """Generate diverse recipes using LLM based on user ingredients"""
     try:
