@@ -1133,6 +1133,15 @@ body {
     padding: 40px 0;
   }
   
+  .logo-section {
+    gap: 5px; /* Very small gap on tiny screens */
+  }
+  
+  .logo-icon {
+    width: 35px; /* Even smaller icon for tiny screens */
+    height: 35px;
+  }
+  
   .app-title {
     font-size: 1.8rem;
   }
