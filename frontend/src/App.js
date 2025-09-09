@@ -91,6 +91,7 @@ const App = () => {
   // Clear all ingredients function
   const clearAllIngredients = () => {
     setIngredients('');
+    ingredientsRef.current = ''; // Clear ref too
     setIngredientTags([]);
     setRecipes(null);
     setError('');
