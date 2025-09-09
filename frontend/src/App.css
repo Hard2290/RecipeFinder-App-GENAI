@@ -1313,11 +1313,14 @@ body {
 
 .section-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   margin-bottom: 30px;
-  flex-wrap: wrap;
-  gap: 15px;
+  gap: 5px;
+}
+
+.section-text {
+  width: 100%;
 }
 
 .section-header h3 {
