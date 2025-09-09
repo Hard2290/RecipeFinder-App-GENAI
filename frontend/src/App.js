@@ -53,6 +53,7 @@ const App = () => {
 
     setLoading(true);
     setError('');
+    setRecipes(null); // Clear previous results immediately
 
     try {
       const response = await axios.post(`${BACKEND_URL}/api/recipes/search`, {
