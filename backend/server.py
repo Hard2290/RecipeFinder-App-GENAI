@@ -577,7 +577,10 @@ async def remove_favorite_recipe(recipe_id: int, current_user_id: str = Depends(
 @api_router.get("/recipes/favorites")
 async def get_favorite_recipes(current_user_id: str = Depends(get_current_user)):
     """Get user's favorite recipes"""
-    saved_recipes = await db.saved_recipes.find({"user_id": current_user_id}).to_list(1000)
+    saved_recipes = await db.saved_recipes.find(
+        {"user_id": current_user_id}, 
+        {"_id": 0}  # Exclude MongoDB ObjectId
+    ).to_list(1000)
     return {"recipes": [recipe["recipe_data"] for recipe in saved_recipes]}
 
 # Custom recipe endpoints
@@ -603,9 +606,11 @@ async def create_custom_recipe(recipe_data: CustomRecipeCreate, current_user_id:
         
         await db.custom_recipes.insert_one(custom_recipe.dict())
         
+        # Return without MongoDB ObjectId
+        recipe_dict = custom_recipe.dict()
         return {
             "message": "Custom recipe created successfully",
-            "recipe": custom_recipe.dict()
+            "recipe": recipe_dict
         }
         
     except Exception as e:
@@ -615,7 +620,10 @@ async def create_custom_recipe(recipe_data: CustomRecipeCreate, current_user_id:
 @api_router.get("/recipes/custom")
 async def get_custom_recipes(current_user_id: str = Depends(get_current_user)):
     """Get user's custom recipes"""
-    custom_recipes = await db.custom_recipes.find({"user_id": current_user_id}).to_list(1000)
+    custom_recipes = await db.custom_recipes.find(
+        {"user_id": current_user_id}, 
+        {"_id": 0}  # Exclude MongoDB ObjectId
+    ).to_list(1000)
     return {"recipes": custom_recipes}
 
 @api_router.delete("/recipes/custom/{recipe_id}")
