@@ -1429,14 +1429,38 @@ body {
     gap: 16px;
   }
   
-  .ingredient-input,
+  .input-with-voice {
+    width: 100%;
+  }
+  
+  .ingredient-input {
+    height: 56px;
+    font-size: 16px;
+    padding: 0 120px 0 20px;
+  }
+  
+  .voice-button {
+    height: 40px;
+    right: 8px;
+    padding: 0 12px;
+  }
+  
   .search-button {
     height: 56px;
     font-size: 16px;
+    width: 100%;
   }
   
   .search-container {
     padding: 30px 20px;
+  }
+  
+  .cuisine-filter {
+    padding: 12px 20px;
+  }
+  
+  .cuisine-select {
+    min-width: 180px;
   }
   
   .ingredient-tags {
@@ -1464,6 +1488,31 @@ body {
   
   .search-container {
     padding: 25px 15px;
+  }
+  
+  .filter-container {
+    margin-bottom: 16px;
+  }
+  
+  .cuisine-filter {
+    padding: 10px 16px;
+  }
+  
+  .cuisine-select {
+    min-width: 150px;
+  }
+  
+  .ingredient-input {
+    padding: 0 100px 0 16px;
+  }
+  
+  .voice-button {
+    height: 36px;
+    padding: 0 10px;
+  }
+  
+  .voice-text {
+    display: none; /* Hide text on very small screens */
   }
 }
 
