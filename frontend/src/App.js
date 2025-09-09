@@ -62,14 +62,24 @@ const App = () => {
   // Voice recognition functions
   const startListening = () => {
     if (recognition && !isListening) {
+      console.log('Starting voice recognition...');
+      console.log('Current ingredients before voice:', ingredients);
       setError('');
       setIsListening(true);
-      recognition.start();
+      
+      try {
+        recognition.start();
+      } catch (err) {
+        console.error('Error starting recognition:', err);
+        setError('Could not start voice recognition. Please try again.');
+        setIsListening(false);
+      }
     }
   };
 
   const stopListening = () => {
     if (recognition && isListening) {
+      console.log('Stopping voice recognition...');
       recognition.stop();
       setIsListening(false);
     }
