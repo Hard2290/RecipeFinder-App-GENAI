@@ -64,6 +64,7 @@ class Recipe(BaseModel):
     nutrition: RecipeNutrition
     hasOnionGarlic: bool
     ingredients: List[str]
+    instructions: List[str]  # Added cooking instructions
 
 class RecipeSearchResponse(BaseModel):
     low: Dict[str, List[Recipe]]
