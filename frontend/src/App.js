@@ -231,10 +231,18 @@ const App = () => {
       console.error('Error searching recipes:', err);
       if (err.response?.status === 504) {
         setError('Connection timeout. Please try again.');
+      } else if (err.response?.status === 502) {
+        setError('AI service temporarily unavailable. Please try again in a moment.');
+      } else if (err.response?.status === 422) {
+        setError('Invalid ingredients format. Please check your input and try again.');
       } else if (err.response?.status >= 500) {
         setError('Server error. Please try again later.');
+      } else if (err.response?.data?.detail) {
+        setError(`Error: ${err.response.data.detail}`);
+      } else if (err.code === 'NETWORK_ERROR' || err.message.includes('Network Error')) {
+        setError('Network connection issue. Please check your connection and try again.');
       } else {
-        setError('No recipes found. Try different ingredients.');
+        setError('Unable to generate recipes. Please try different ingredients or check your internet connection.');
       }
     } finally {
       setLoading(false);
