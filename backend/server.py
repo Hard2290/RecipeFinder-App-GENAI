@@ -185,6 +185,8 @@ Requirements:
         user_message = UserMessage(
             text=f"""Generate diverse recipes using these ingredients: {ingredients}
 
+{f"Focus on {cuisine.title()} cuisine style and flavoring." if cuisine != 'any' else "Include recipes from various international cuisines."}
+
 Please create a variety of recipes including:
 - Quick recipes (under 20 minutes): appetizers, salads, simple stir-fries
 - Medium recipes (20-45 minutes): main dishes, baked items, soups
@@ -199,6 +201,7 @@ Make sure to:
 6. PROVIDE DETAILED COOKING INSTRUCTIONS with step-by-step directions
 7. Include specific cooking methods, temperatures, and timing
 8. Make instructions clear and easy to follow
+{f"9. Incorporate {cuisine.title()} cooking techniques, spices, and flavor profiles" if cuisine != 'any' else "9. Use diverse international cooking techniques and spices"}
 
 Return only the JSON response, no other text."""
         )
