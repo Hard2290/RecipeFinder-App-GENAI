@@ -138,7 +138,7 @@ async def generate_recipes_with_llm(ingredients: str) -> List[Recipe]:
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=f"recipe_gen_{uuid.uuid4()}",
-            system_message="""You are a professional chef and nutritionist. Generate diverse, realistic recipes based on the provided ingredients. 
+            system_message="""You are a professional chef and nutritionist. Generate diverse, realistic recipes with COMPLETE cooking instructions based on the provided ingredients. 
 
 Return recipes in this exact JSON format:
 {
@@ -154,7 +154,14 @@ Return recipes in this exact JSON format:
       "fat": 15.0,
       "fiber": 6.0,
       "ingredients": ["ingredient1", "ingredient2", "ingredient3", "salt", "pepper"],
-      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400"
+      "instructions": [
+        "Heat oil in a large pan over medium heat.",
+        "Add ingredients and cook for 5 minutes until softened.",
+        "Season with salt and pepper to taste.",
+        "Cook for another 10 minutes, stirring occasionally.",
+        "Serve hot and enjoy!"
+      ],
+      "image": "placeholder"
     }
   ]
 }
@@ -165,10 +172,12 @@ Requirements:
 3. Include the user's ingredients prominently in recipes
 4. Add common cooking ingredients (salt, pepper, oil, etc.)
 5. Some recipes should include onion/garlic, others should not
-6. Use high-quality Unsplash food image URLs (different for each recipe)
-7. Make recipe titles creative and appetizing
-8. Ensure nutritional values are realistic for the ingredients and portions
-9. Each recipe should have 4-8 ingredients total"""
+6. Make recipe titles creative and appetizing
+7. Ensure nutritional values are realistic for the ingredients and portions
+8. Each recipe should have 4-8 ingredients total
+9. MOST IMPORTANT: Include detailed step-by-step cooking instructions (5-8 steps)
+10. Instructions should be clear, specific, and actionable
+11. Include cooking methods, temperatures, and timing details"""
         ).with_model("openai", "gpt-4o-mini")
         
         # Create the prompt
