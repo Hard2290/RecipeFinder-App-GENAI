@@ -250,15 +250,10 @@ const YourRecipesPage = ({ isOpen, onClose }) => {
             <TabsContent value="custom" className="tab-content">
               <div className="recipes-section">
                 <div className="section-header">
-                  <h3>Your Custom Recipes</h3>
-                  <p>Recipes you've created and personalized</p>
-                  <Button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="create-recipe-btn"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Cook Your Own
-                  </Button>
+                  <div className="section-text">
+                    <h3>Your Custom Recipes</h3>
+                    <p>Recipes you've created and personalized</p>
+                  </div>
                 </div>
                 
                 {loading ? (
