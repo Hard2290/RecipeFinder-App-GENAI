@@ -16,11 +16,21 @@ import YourRecipesPage from './components/YourRecipes/YourRecipesPage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-const App = () => {
+const RecipeFinderApp = () => {
   const [ingredients, setIngredients] = useState('');
   const [ingredientTags, setIngredientTags] = useState([]);
   const [recipes, setRecipes] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Authentication and recipe management states
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isYourRecipesOpen, setIsYourRecipesOpen] = useState(false);
+  const [savedRecipeIds, setSavedRecipeIds] = useState(new Set());
+  
+  const { user, logout, getAuthHeaders, isAuthenticated } = useAuth();
   const [error, setError] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
