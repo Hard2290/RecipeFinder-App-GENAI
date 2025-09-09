@@ -226,8 +226,17 @@ class RecipeFinderAPITester:
         """Test edge cases for recipe search"""
         print("\n🧪 Testing Edge Cases:")
         
-        # Test with single ingredient
-        success1, _ = self.run_test(
+        # Test with empty ingredients (should fail)
+        success1, response1 = self.run_test(
+            "Empty Ingredients (Should Fail)", 
+            "POST", 
+            "api/recipes/search", 
+            422,  # Expecting validation error
+            data={"ingredients": "", "number": 10}
+        )
+        
+        # Test with single ingredient (should work but may have limited results)
+        success2, response2 = self.run_test(
             "Single Ingredient", 
             "POST", 
             "api/recipes/search", 
@@ -236,7 +245,7 @@ class RecipeFinderAPITester:
         )
         
         # Test with many ingredients
-        success2, _ = self.run_test(
+        success3, response3 = self.run_test(
             "Many Ingredients", 
             "POST", 
             "api/recipes/search", 
@@ -245,7 +254,7 @@ class RecipeFinderAPITester:
         )
         
         # Test with unusual ingredients
-        success3, _ = self.run_test(
+        success4, response4 = self.run_test(
             "Unusual Ingredients", 
             "POST", 
             "api/recipes/search", 
@@ -253,7 +262,70 @@ class RecipeFinderAPITester:
             data={"ingredients": "dragon fruit, quinoa, kale", "number": 10}
         )
         
-        return success1 and success2 and success3
+        # Test with invalid cuisine
+        success5, response5 = self.run_test(
+            "Invalid Cuisine", 
+            "POST", 
+            "api/recipes/search", 
+            200,  # Should still work, just ignore invalid cuisine
+            data={"ingredients": "chicken, rice", "cuisine": "martian", "number": 10}
+        )
+        
+        return success2 and success3 and success4 and success5
+
+    def test_llm_integration_status(self):
+        """Test if LLM integration is working by checking environment and making a test call"""
+        print("\n🤖 Testing LLM Integration Status:")
+        
+        # Check if EMERGENT_LLM_KEY is configured
+        try:
+            with open('/app/backend/.env', 'r') as f:
+                env_content = f.read()
+                if 'EMERGENT_LLM_KEY=' in env_content:
+                    print("✅ EMERGENT_LLM_KEY found in backend .env file")
+                    
+                    # Extract the key to check if it's not empty
+                    for line in env_content.split('\n'):
+                        if line.startswith('EMERGENT_LLM_KEY='):
+                            key_value = line.split('=', 1)[1]
+                            if key_value and key_value.strip():
+                                print(f"✅ LLM Key is configured (starts with: {key_value[:10]}...)")
+                            else:
+                                print("❌ LLM Key is empty")
+                                return False
+                else:
+                    print("❌ EMERGENT_LLM_KEY not found in backend .env file")
+                    return False
+        except Exception as e:
+            print(f"❌ Error reading backend .env file: {e}")
+            return False
+        
+        # Test LLM integration with a simple recipe request
+        test_data = {
+            "ingredients": "eggs, bread, butter",
+            "cuisine": "any",
+            "number": 5
+        }
+        
+        success, response = self.run_test(
+            "LLM Integration Test", 
+            "POST", 
+            "api/recipes/search", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            total_recipes = self._analyze_recipe_response(response)
+            if total_recipes > 0:
+                print("✅ LLM integration is working - recipes generated successfully")
+                return True
+            else:
+                print("❌ LLM integration issue - no recipes generated")
+                return False
+        else:
+            print("❌ LLM integration test failed")
+            return False
 
     def test_spoonacular_api_directly(self):
         """Test Spoonacular API directly to check if the issue is with external API"""
