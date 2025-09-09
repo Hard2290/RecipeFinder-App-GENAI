@@ -91,6 +91,40 @@ const App = () => {
       setCurrentTip((prev) => (prev + 1) % cookingTips.length);
     }, 4000);
 
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'en-US';
+      
+      recognitionInstance.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const currentValue = ingredients.trim();
+        const newValue = currentValue ? `${currentValue}, ${transcript}` : transcript;
+        setIngredients(newValue);
+        handleIngredientInput({ target: { value: newValue } });
+        setIsListening(false);
+      };
+      
+      recognitionInstance.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setError('Voice recognition error. Please try again or use text input.');
+        setIsListening(false);
+      };
+      
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+      };
+      
+      setRecognition(recognitionInstance);
+      setVoiceSupported(true);
+    } else {
+      setVoiceSupported(false);
+    }
+
     return () => clearInterval(tipInterval);
   }, []);
 
