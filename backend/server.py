@@ -580,6 +580,92 @@ async def get_favorite_recipes(current_user_id: str = Depends(get_current_user))
     saved_recipes = await db.saved_recipes.find({"user_id": current_user_id}).to_list(1000)
     return {"recipes": [recipe["recipe_data"] for recipe in saved_recipes]}
 
+# Custom recipe endpoints
+@api_router.post("/recipes/custom")
+async def create_custom_recipe(recipe_data: CustomRecipeCreate, current_user_id: str = Depends(get_current_user)):
+    """Create a custom recipe with AI nutrition analysis"""
+    try:
+        # Analyze nutrition and cooking time using AI
+        nutrition, ready_in_minutes = await analyze_custom_recipe_nutrition(
+            recipe_data.ingredients, 
+            recipe_data.servings
+        )
+        
+        custom_recipe = CustomRecipe(
+            user_id=current_user_id,
+            title=recipe_data.title,
+            ingredients=recipe_data.ingredients,
+            instructions=recipe_data.instructions,
+            servings=recipe_data.servings,
+            nutrition=nutrition,
+            readyInMinutes=ready_in_minutes
+        )
+        
+        await db.custom_recipes.insert_one(custom_recipe.dict())
+        
+        return {
+            "message": "Custom recipe created successfully",
+            "recipe": custom_recipe.dict()
+        }
+        
+    except Exception as e:
+        logging.error(f"Error creating custom recipe: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create custom recipe")
+
+@api_router.get("/recipes/custom")
+async def get_custom_recipes(current_user_id: str = Depends(get_current_user)):
+    """Get user's custom recipes"""
+    custom_recipes = await db.custom_recipes.find({"user_id": current_user_id}).to_list(1000)
+    return {"recipes": custom_recipes}
+
+@api_router.delete("/recipes/custom/{recipe_id}")
+async def delete_custom_recipe(recipe_id: str, current_user_id: str = Depends(get_current_user)):
+    """Delete a custom recipe"""
+    result = await db.custom_recipes.delete_one({
+        "id": recipe_id,
+        "user_id": current_user_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Custom recipe not found")
+    
+    return {"message": "Custom recipe deleted successfully"}
+
+# Recipe sharing endpoints
+@api_router.get("/recipes/share/custom/{share_token}")
+async def get_shared_custom_recipe(share_token: str):
+    """Get a shared custom recipe by token"""
+    recipe = await db.custom_recipes.find_one({"share_token": share_token})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Shared recipe not found")
+    
+    # Get user name for attribution
+    user = await db.users.find_one({"id": recipe["user_id"]})
+    user_name = user["name"] if user else "Unknown User"
+    
+    return {
+        "recipe": recipe,
+        "shared_by": user_name,
+        "recipe_type": "custom"
+    }
+
+@api_router.get("/recipes/share/favorite/{share_token}")
+async def get_shared_favorite_recipe(share_token: str):
+    """Get a shared favorite recipe by token"""
+    saved_recipe = await db.saved_recipes.find_one({"share_token": share_token})
+    if not saved_recipe:
+        raise HTTPException(status_code=404, detail="Shared recipe not found")
+    
+    # Get user name for attribution
+    user = await db.users.find_one({"id": saved_recipe["user_id"]})
+    user_name = user["name"] if user else "Unknown User"
+    
+    return {
+        "recipe": saved_recipe["recipe_data"],
+        "shared_by": user_name,
+        "recipe_type": "favorite"
+    }
+
 @api_router.post("/recipes/search", response_model=RecipeSearchResponse)
 async def search_recipes(request: RecipeSearchRequest):
     """Search for recipes based on ingredients using AI generation"""
