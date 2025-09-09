@@ -185,105 +185,84 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 def get_sample_recipes(ingredients: str) -> List[Recipe]:
-    """Generate sample recipes when API quota is exhausted"""
+    """Generate diverse, realistic recipes when API quota is exhausted"""
     ingredient_list = [ing.strip().lower() for ing in ingredients.split(',')]
     
-    # Sample recipe data based on common ingredients
-    sample_recipes = [
+    # Create a comprehensive recipe database with diverse, realistic names
+    all_recipes = [
         # Quick recipes (LOW - under 20 min)
-        {
-            "id": 1001, "title": f"Quick {ingredient_list[0].title()} Stir Fry", "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
-            "readyInMinutes": 15, "servings": 2, "hasOnionGarlic": True,
-            "nutrition": {"calories": 285.0, "protein": 22.0, "carbs": 18.0, "fat": 12.0, "fiber": 4.0},
-            "ingredients": ingredient_list[:3] + ["garlic", "onion", "soy sauce"]
-        },
-        {
-            "id": 1002, "title": f"Simple {ingredient_list[0].title()} Salad", "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
-            "readyInMinutes": 10, "servings": 2, "hasOnionGarlic": False,
-            "nutrition": {"calories": 195.0, "protein": 15.0, "carbs": 12.0, "fat": 8.0, "fiber": 6.0},
-            "ingredients": ingredient_list[:2] + ["lettuce", "olive oil", "lemon"]
-        },
-        {
-            "id": 1003, "title": f"Quick {ingredient_list[-1].title()} Smoothie Bowl", "image": "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400",
-            "readyInMinutes": 8, "servings": 1, "hasOnionGarlic": False,
-            "nutrition": {"calories": 245.0, "protein": 12.0, "carbs": 35.0, "fat": 6.0, "fiber": 8.0},
-            "ingredients": [ingredient_list[-1], "banana", "yogurt", "honey", "granola"]
-        },
-        {
-            "id": 1004, "title": f"Grilled {ingredient_list[0].title()} Sandwich", "image": "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400",
-            "readyInMinutes": 12, "servings": 1, "hasOnionGarlic": True,
-            "nutrition": {"calories": 320.0, "protein": 18.0, "carbs": 28.0, "fat": 14.0, "fiber": 3.0},
-            "ingredients": [ingredient_list[0], "bread", "cheese", "garlic butter", "herbs"]
-        },
-        {
-            "id": 1005, "title": f"Fresh {ingredient_list[1] if len(ingredient_list) > 1 else ingredient_list[0].title()} Wrap", "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400",
-            "readyInMinutes": 7, "servings": 1, "hasOnionGarlic": False,
-            "nutrition": {"calories": 275.0, "protein": 16.0, "carbs": 25.0, "fat": 11.0, "fiber": 5.0},
-            "ingredients": ingredient_list[:2] + ["tortilla", "lettuce", "mayo"]
-        },
+        {"id": 1001, "title": "Caprese Salad with Fresh Basil", "image": "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=400", "readyInMinutes": 10, "servings": 2, "hasOnionGarlic": False, "nutrition": {"calories": 220.0, "protein": 12.0, "carbs": 8.0, "fat": 16.0, "fiber": 2.0}, "keywords": ["tomato", "cheese", "mozzarella", "basil"]},
+        {"id": 1002, "title": "Asian Chicken Lettuce Wraps", "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400", "readyInMinutes": 15, "servings": 3, "hasOnionGarlic": True, "nutrition": {"calories": 285.0, "protein": 22.0, "carbs": 12.0, "fat": 8.0, "fiber": 4.0}, "keywords": ["chicken", "lettuce", "asian"]},
+        {"id": 1003, "title": "Mediterranean Chickpea Bowl", "image": "https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400", "readyInMinutes": 12, "servings": 2, "hasOnionGarlic": False, "nutrition": {"calories": 315.0, "protein": 14.0, "carbs": 35.0, "fat": 12.0, "fiber": 8.0}, "keywords": ["chickpea", "mediterranean", "olive", "feta"]},
+        {"id": 1004, "title": "Spicy Paneer Tikka Bites", "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400", "readyInMinutes": 18, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 340.0, "protein": 18.0, "carbs": 15.0, "fat": 22.0, "fiber": 3.0}, "keywords": ["paneer", "indian", "spicy", "tikka"]},
+        {"id": 1005, "title": "Avocado Toast Supreme", "image": "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400", "readyInMinutes": 8, "servings": 1, "hasOnionGarlic": False, "nutrition": {"calories": 295.0, "protein": 8.0, "carbs": 28.0, "fat": 18.0, "fiber": 10.0}, "keywords": ["avocado", "toast", "bread"]},
+        {"id": 1006, "title": "Teriyaki Rice Bowl", "image": "https://images.unsplash.com/photo-1604909052743-94e838986d24?w=400", "readyInMinutes": 16, "servings": 2, "hasOnionGarlic": True, "nutrition": {"calories": 380.0, "protein": 20.0, "carbs": 45.0, "fat": 12.0, "fiber": 3.0}, "keywords": ["rice", "teriyaki", "asian", "bowl"]},
+        {"id": 1007, "title": "Greek Yogurt Parfait", "image": "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400", "readyInMinutes": 5, "servings": 1, "hasOnionGarlic": False, "nutrition": {"calories": 245.0, "protein": 15.0, "carbs": 32.0, "fat": 6.0, "fiber": 5.0}, "keywords": ["yogurt", "berry", "granola", "honey"]},
+        {"id": 1008, "title": "Soybean Edamame Hummus", "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400", "readyInMinutes": 10, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 180.0, "protein": 12.0, "carbs": 18.0, "fat": 8.0, "fiber": 6.0}, "keywords": ["soybean", "edamame", "hummus", "dip"]},
         
         # Medium recipes (20-45 min)
-        {
-            "id": 2001, "title": f"Classic {ingredient_list[0].title()} Pasta", "image": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=400",
-            "readyInMinutes": 25, "servings": 4, "hasOnionGarlic": True,
-            "nutrition": {"calories": 420.0, "protein": 24.0, "carbs": 45.0, "fat": 16.0, "fiber": 4.0},
-            "ingredients": ingredient_list + ["pasta", "garlic", "onion", "parmesan", "olive oil"]
-        },
-        {
-            "id": 2002, "title": f"Healthy {ingredient_list[0].title()} Bowl", "image": "https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",
-            "readyInMinutes": 30, "servings": 2, "hasOnionGarlic": False,
-            "nutrition": {"calories": 350.0, "protein": 20.0, "carbs": 38.0, "fat": 12.0, "fiber": 7.0},
-            "ingredients": ingredient_list + ["quinoa", "avocado", "lime", "cilantro"]
-        },
-        {
-            "id": 2003, "title": f"Baked {ingredient_list[0].title()} with Herbs", "image": "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400",
-            "readyInMinutes": 35, "servings": 3, "hasOnionGarlic": True,
-            "nutrition": {"calories": 380.0, "protein": 26.0, "carbs": 22.0, "fat": 18.0, "fiber": 3.0},
-            "ingredients": ingredient_list + ["herbs", "garlic", "olive oil", "lemon"]
-        },
-        {
-            "id": 2004, "title": f"Creamy {ingredient_list[1] if len(ingredient_list) > 1 else ingredient_list[0].title()} Soup", "image": "https://images.unsplash.com/photo-1547592180-85f173990554?w=400",
-            "readyInMinutes": 40, "servings": 4, "hasOnionGarlic": True,
-            "nutrition": {"calories": 295.0, "protein": 14.0, "carbs": 20.0, "fat": 16.0, "fiber": 5.0},
-            "ingredients": ingredient_list + ["cream", "onion", "garlic", "broth", "thyme"]
-        },
-        {
-            "id": 2005, "title": f"Mediterranean {ingredient_list[0].title()} Skillet", "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
-            "readyInMinutes": 28, "servings": 3, "hasOnionGarlic": False,
-            "nutrition": {"calories": 365.0, "protein": 22.0, "carbs": 28.0, "fat": 18.0, "fiber": 6.0},
-            "ingredients": ingredient_list + ["olives", "feta", "oregano", "lemon"]
-        },
+        {"id": 2001, "title": "Creamy Mushroom Risotto", "image": "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400", "readyInMinutes": 35, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 420.0, "protein": 16.0, "carbs": 48.0, "fat": 18.0, "fiber": 4.0}, "keywords": ["rice", "mushroom", "creamy", "italian"]},
+        {"id": 2002, "title": "Honey Garlic Chicken Thighs", "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400", "readyInMinutes": 40, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 485.0, "protein": 32.0, "carbs": 28.0, "fat": 24.0, "fiber": 2.0}, "keywords": ["chicken", "honey", "garlic", "thigh"]},
+        {"id": 2003, "title": "Stuffed Bell Peppers", "image": "https://images.unsplash.com/photo-1606755456206-b25206449e90?w=400", "readyInMinutes": 45, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 365.0, "protein": 22.0, "carbs": 35.0, "fat": 16.0, "fiber": 6.0}, "keywords": ["pepper", "stuffed", "rice", "beef"]},
+        {"id": 2004, "title": "Lemon Herb Salmon Fillet", "image": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400", "readyInMinutes": 25, "servings": 2, "hasOnionGarlic": False, "nutrition": {"calories": 425.0, "protein": 38.0, "carbs": 8.0, "fat": 26.0, "fiber": 2.0}, "keywords": ["salmon", "fish", "lemon", "herb"]},
+        {"id": 2005, "title": "Butter Paneer Masala", "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400", "readyInMinutes": 30, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 395.0, "protein": 18.0, "carbs": 22.0, "fat": 26.0, "fiber": 4.0}, "keywords": ["paneer", "butter", "masala", "indian", "curry"]},
+        {"id": 2006, "title": "Vegetable Fried Rice", "image": "https://images.unsplash.com/photo-1604909052743-94e838986d24?w=400", "readyInMinutes": 22, "servings": 3, "hasOnionGarlic": True, "nutrition": {"calories": 335.0, "protein": 12.0, "carbs": 52.0, "fat": 10.0, "fiber": 5.0}, "keywords": ["rice", "vegetable", "fried", "asian"]},
+        {"id": 2007, "title": "Tomato Basil Pasta", "image": "https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?w=400", "readyInMinutes": 28, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 385.0, "protein": 14.0, "carbs": 58.0, "fat": 12.0, "fiber": 6.0}, "keywords": ["pasta", "tomato", "basil", "italian"]},
         
         # Longer recipes (HIGH - over 45 min)
-        {
-            "id": 3001, "title": f"Slow-Cooked {ingredient_list[0].title()} Stew", "image": "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400",
-            "readyInMinutes": 90, "servings": 6, "hasOnionGarlic": True,
-            "nutrition": {"calories": 445.0, "protein": 28.0, "carbs": 35.0, "fat": 20.0, "fiber": 6.0},
-            "ingredients": ingredient_list + ["potatoes", "carrots", "onion", "garlic", "bay leaves"]
-        },
-        {
-            "id": 3002, "title": f"Roasted {ingredient_list[0].title()} Feast", "image": "https://images.unsplash.com/photo-1574947726661-e2c5f3585e99?w=400",
-            "readyInMinutes": 75, "servings": 8, "hasOnionGarlic": True,
-            "nutrition": {"calories": 520.0, "protein": 32.0, "carbs": 25.0, "fat": 28.0, "fiber": 4.0},
-            "ingredients": ingredient_list + ["rosemary", "garlic", "onion", "potatoes", "wine"]
-        },
-        {
-            "id": 3003, "title": f"Traditional {ingredient_list[0].title()} Curry", "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400",
-            "readyInMinutes": 60, "servings": 4, "hasOnionGarlic": True,
-            "nutrition": {"calories": 385.0, "protein": 24.0, "carbs": 32.0, "fat": 18.0, "fiber": 5.0},
-            "ingredients": ingredient_list + ["coconut milk", "spices", "onion", "garlic", "ginger"]
-        },
-        {
-            "id": 3004, "title": f"Braised {ingredient_list[0].title()} Special", "image": "https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=400",
-            "readyInMinutes": 105, "servings": 5, "hasOnionGarlic": False,
-            "nutrition": {"calories": 410.0, "protein": 30.0, "carbs": 28.0, "fat": 19.0, "fiber": 4.0},
-            "ingredients": ingredient_list + ["wine", "herbs", "carrots", "celery"]
-        }
+        {"id": 3001, "title": "Slow Braised Beef Short Ribs", "image": "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400", "readyInMinutes": 180, "servings": 6, "hasOnionGarlic": True, "nutrition": {"calories": 565.0, "protein": 42.0, "carbs": 15.0, "fat": 36.0, "fiber": 3.0}, "keywords": ["beef", "braised", "short ribs", "wine"]},
+        {"id": 3002, "title": "Traditional Chicken Biryani", "image": "https://images.unsplash.com/photo-1563379091339-03246963d51c?w=400", "readyInMinutes": 90, "servings": 8, "hasOnionGarlic": True, "nutrition": {"calories": 485.0, "protein": 28.0, "carbs": 52.0, "fat": 18.0, "fiber": 4.0}, "keywords": ["chicken", "biryani", "rice", "indian", "spiced"]},
+        {"id": 3003, "title": "Moroccan Lamb Tagine", "image": "https://images.unsplash.com/photo-1544025162-d76694265947?w=400", "readyInMinutes": 120, "servings": 6, "hasOnionGarlic": True, "nutrition": {"calories": 445.0, "protein": 32.0, "carbs": 28.0, "fat": 24.0, "fiber": 6.0}, "keywords": ["lamb", "moroccan", "tagine", "spiced"]},
+        {"id": 3004, "title": "Homemade Lasagna Classica", "image": "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400", "readyInMinutes": 75, "servings": 8, "hasOnionGarlic": True, "nutrition": {"calories": 520.0, "protein": 28.0, "carbs": 38.0, "fat": 28.0, "fiber": 5.0}, "keywords": ["lasagna", "pasta", "beef", "cheese", "italian"]},
+        {"id": 3005, "title": "Roasted Whole Chicken with Herbs", "image": "https://images.unsplash.com/photo-1574947726661-e2c5f3585e99?w=400", "readyInMinutes": 90, "servings": 6, "hasOnionGarlic": True, "nutrition": {"calories": 425.0, "protein": 38.0, "carbs": 8.0, "fat": 26.0, "fiber": 2.0}, "keywords": ["chicken", "roasted", "herbs", "whole"]},
+        {"id": 3006, "title": "Authentic Ramen Noodle Soup", "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400", "readyInMinutes": 60, "servings": 4, "hasOnionGarlic": True, "nutrition": {"calories": 385.0, "protein": 22.0, "carbs": 42.0, "fat": 16.0, "fiber": 4.0}, "keywords": ["ramen", "noodle", "soup", "japanese"]},
     ]
     
-    # Convert to Recipe objects
+    # Score recipes based on ingredient matching
+    scored_recipes = []
+    for recipe in all_recipes:
+        score = 0
+        matched_ingredients = []
+        
+        # Check how many user ingredients match recipe keywords
+        for user_ingredient in ingredient_list:
+            for keyword in recipe["keywords"]:
+                if user_ingredient in keyword.lower() or keyword.lower() in user_ingredient:
+                    score += 2
+                    matched_ingredients.append(user_ingredient)
+                    break
+            # Partial matches get lower scores
+            for keyword in recipe["keywords"]:
+                if any(part in keyword.lower() for part in user_ingredient.split()) or any(part in user_ingredient for part in keyword.lower().split()):
+                    score += 1
+                    break
+        
+        # Add some recipes even without perfect matches (for variety)
+        if score > 0 or len(scored_recipes) < 8:
+            scored_recipes.append((score, recipe, matched_ingredients))
+    
+    # Sort by score (descending) and take the best matches
+    scored_recipes.sort(key=lambda x: x[0], reverse=True)
+    selected_recipes = scored_recipes[:14]  # Take top 14 recipes
+    
+    # Convert to Recipe objects with realistic ingredient lists
     recipes = []
-    for recipe_data in sample_recipes:
+    for score, recipe_data, matched_ingredients in selected_recipes:
+        # Create realistic ingredient list
+        base_ingredients = matched_ingredients + ingredient_list
+        # Add common cooking ingredients
+        cooking_ingredients = ["salt", "pepper", "olive oil", "herbs"]
+        if recipe_data["hasOnionGarlic"]:
+            cooking_ingredients.extend(["onion", "garlic"])
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        ingredients = []
+        for ing in base_ingredients + cooking_ingredients:
+            if ing.lower() not in seen:
+                ingredients.append(ing)
+                seen.add(ing.lower())
+        
         recipe = Recipe(
             id=recipe_data["id"],
             title=recipe_data["title"],
@@ -292,7 +271,7 @@ def get_sample_recipes(ingredients: str) -> List[Recipe]:
             servings=recipe_data["servings"],
             nutrition=RecipeNutrition(**recipe_data["nutrition"]),
             hasOnionGarlic=recipe_data["hasOnionGarlic"],
-            ingredients=recipe_data["ingredients"]
+            ingredients=ingredients[:8]  # Limit to 8 ingredients for readability
         )
         recipes.append(recipe)
     
