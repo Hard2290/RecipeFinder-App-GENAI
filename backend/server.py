@@ -195,6 +195,9 @@ Make sure to:
 3. Provide realistic nutritional information
 4. Use appealing recipe names
 5. Include appropriate cooking times for each recipe type
+6. PROVIDE DETAILED COOKING INSTRUCTIONS with step-by-step directions
+7. Include specific cooking methods, temperatures, and timing
+8. Make instructions clear and easy to follow
 
 Return only the JSON response, no other text."""
         )
