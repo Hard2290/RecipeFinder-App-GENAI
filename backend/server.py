@@ -219,6 +219,7 @@ Return only the JSON response, no other text."""
                 ready_in_minutes = recipe_json.get('readyInMinutes', 30)
                 servings = recipe_json.get('servings', 2)
                 ingredients_list = recipe_json.get('ingredients', [])
+                instructions = recipe_json.get('instructions', ['No instructions available'])
                 
                 # Extract nutritional information
                 calories = recipe_json.get('calories', 300.0)
@@ -238,8 +239,8 @@ Return only the JSON response, no other text."""
                 # Check for onion/garlic
                 has_onion_garlic_flag = has_onion_garlic(ingredients_list)
                 
-                # Get image URL or use default
-                image_url = recipe_json.get('image', 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400')
+                # Get image URL or use placeholder
+                image_url = recipe_json.get('image', 'placeholder')
                 
                 # Create recipe object
                 recipe = Recipe(
@@ -250,7 +251,8 @@ Return only the JSON response, no other text."""
                     servings=servings,
                     nutrition=nutrition,
                     hasOnionGarlic=has_onion_garlic_flag,
-                    ingredients=ingredients_list
+                    ingredients=ingredients_list,
+                    instructions=instructions
                 )
                 
                 recipes.append(recipe)
