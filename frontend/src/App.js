@@ -70,28 +70,35 @@ const RecipeFinderApp = () => {
     }
 
     try {
-      await axios.post(`${BACKEND_URL}/api/recipes/save-favorite`, {
+      console.log('Saving recipe:', recipe);
+      const response = await axios.post(`${BACKEND_URL}/api/recipes/save-favorite`, {
         recipe_data: recipe
       }, {
         headers: getAuthHeaders()
       });
       
+      console.log('Recipe saved successfully:', response.data);
       setSavedRecipeIds(prev => new Set([...prev, recipe.id]));
     } catch (error) {
       console.error('Error saving recipe:', error);
+      console.error('Error details:', error.response?.data);
       if (error.response?.status === 400) {
         // Recipe already saved - just update UI
         setSavedRecipeIds(prev => new Set([...prev, recipe.id]));
+      } else {
+        setError('Failed to save recipe. Please try again.');
       }
     }
   };
 
   const unsaveRecipe = async (recipe) => {
     try {
+      console.log('Removing recipe:', recipe.id);
       await axios.delete(`${BACKEND_URL}/api/recipes/remove-favorite/${recipe.id}`, {
         headers: getAuthHeaders()
       });
       
+      console.log('Recipe removed successfully');
       setSavedRecipeIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(recipe.id);
@@ -99,6 +106,7 @@ const RecipeFinderApp = () => {
       });
     } catch (error) {
       console.error('Error removing recipe:', error);
+      setError('Failed to remove recipe. Please try again.');
     }
   };
 
@@ -107,10 +115,13 @@ const RecipeFinderApp = () => {
     if (isAuthenticated) {
       const loadSavedRecipes = async () => {
         try {
+          console.log('Loading saved recipes...');
           const response = await axios.get(`${BACKEND_URL}/api/recipes/favorites`, {
             headers: getAuthHeaders()
           });
+          console.log('Saved recipes response:', response.data);
           const savedIds = new Set(response.data.recipes.map(recipe => recipe.id));
+          console.log('Saved recipe IDs:', savedIds);
           setSavedRecipeIds(savedIds);
         } catch (error) {
           console.error('Error loading saved recipes:', error);
