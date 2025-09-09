@@ -131,11 +131,11 @@ const App = () => {
     }
   };
 
-  const RecipeModal = ({ recipe, onClose }) => {
+  const RecipeModal = ({ recipe }) => {
     if (!recipe) return null;
 
     return (
-      <DialogContent className="recipe-modal max-w-4xl" onInteractOutside={(e) => e.preventDefault()}>
+      <>
         <DialogHeader>
           <DialogTitle className="recipe-modal-title">{recipe.title}</DialogTitle>
         </DialogHeader>
@@ -220,7 +220,7 @@ const App = () => {
             </div>
           </div>
         </div>
-      </DialogContent>
+      </>
     );
   };
 
