@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
@@ -19,6 +19,55 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  
+  // Floating food icons
+  const foodIcons = ['🍅', '🥕', '🧄', '🧅', '🥬', '🌶️', '🍄', '🥒', '🥖'];
+  const [floatingIcons, setFloatingIcons] = useState([]);
+  
+  // Cooking tips
+  const cookingTips = [
+    "💡 Fresh ingredients make the biggest difference!",
+    "💡 Don't be afraid to experiment with spices!",
+    "💡 Taste as you cook and adjust seasoning!",
+    "💡 Mise en place - prep everything before cooking!",
+    "💡 Cook with love and your food will taste amazing!"
+  ];
+  const [currentTip, setCurrentTip] = useState(0);
+
+  useEffect(() => {
+    // Initialize floating icons
+    const icons = foodIcons.map((icon, index) => ({
+      id: index,
+      icon,
+      style: {
+        left: `${Math.random() * 90}%`,
+        animationDelay: `${Math.random() * 20}s`,
+        fontSize: `${1.5 + Math.random() * 1}rem`
+      }
+    }));
+    setFloatingIcons(icons);
+
+    // Rotate cooking tips
+    const tipInterval = setInterval(() => {
+      setCurrentTip((prev) => (prev + 1) % cookingTips.length);
+    }, 4000);
+
+    return () => clearInterval(tipInterval);
+  }, []);
+
+  const FloatingFoodIcons = () => (
+    <div className="floating-icons">
+      {floatingIcons.map((item) => (
+        <div
+          key={item.id}
+          className="floating-icon"
+          style={item.style}
+        >
+          {item.icon}
+        </div>
+      ))}
+    </div>
+  );
 
   const handleIngredientInput = (e) => {
     const value = e.target.value;
