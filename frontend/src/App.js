@@ -86,20 +86,12 @@ const App = () => {
     if (!recipe) return null;
 
     return (
-      <DialogContent className="recipe-modal max-w-2xl">
+      <DialogContent className="recipe-modal max-w-4xl">
         <DialogHeader>
           <DialogTitle className="recipe-modal-title">{recipe.title}</DialogTitle>
         </DialogHeader>
         
         <div className="recipe-modal-content">
-          <div className="recipe-modal-image">
-            <img 
-              src={recipe.image || '/api/placeholder/600/300'} 
-              alt={recipe.title}
-              className="modal-image"
-            />
-          </div>
-          
           <div className="recipe-modal-info">
             <div className="recipe-modal-stats">
               <div className="stat-item">
@@ -115,6 +107,34 @@ const App = () => {
                   <span className="calories-number-large">{Math.round(recipe.nutrition.calories)}</span>
                   <span className="calories-text-large">cal</span>
                 </div>
+              </div>
+            </div>
+            
+            <div className="ingredients-section">
+              <h3>Ingredients</h3>
+              <div className="ingredients-list-detailed">
+                {recipe.ingredients.map((ingredient, index) => (
+                  <div key={index} className="ingredient-item">
+                    <span className="ingredient-bullet">•</span>
+                    <span className="ingredient-name">{ingredient}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="instructions-section">
+              <h3>Cooking Instructions</h3>
+              <div className="instructions-list">
+                {recipe.instructions && recipe.instructions.length > 0 ? (
+                  recipe.instructions.map((instruction, index) => (
+                    <div key={index} className="instruction-item">
+                      <span className="instruction-number">{index + 1}</span>
+                      <span className="instruction-text">{instruction}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-instructions">Cooking instructions not available for this recipe.</p>
+                )}
               </div>
             </div>
             
@@ -141,17 +161,6 @@ const App = () => {
                   <span className="nutrition-value">{Math.round(recipe.nutrition.fiber)}g</span>
                   <Progress value={(recipe.nutrition.fiber / 25) * 100} className="nutrition-bar nutrition-fiber" />
                 </div>
-              </div>
-            </div>
-            
-            <div className="ingredients-section">
-              <h3>Ingredients</h3>
-              <div className="ingredients-list">
-                {recipe.ingredients.map((ingredient, index) => (
-                  <Badge key={index} variant="outline" className="ingredient-badge">
-                    {ingredient}
-                  </Badge>
-                ))}
               </div>
             </div>
             
