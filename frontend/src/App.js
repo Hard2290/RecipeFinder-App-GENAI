@@ -228,6 +228,7 @@ const App = () => {
   const handleIngredientInput = (e) => {
     const value = e.target.value;
     setIngredients(value);
+    ingredientsRef.current = value; // Keep ref updated
     
     // Create tags from comma-separated ingredients
     if (value.trim()) {
