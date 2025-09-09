@@ -548,7 +548,7 @@ async def save_favorite_recipe(request: SaveRecipeRequest, current_user_id: str 
     existing = await db.saved_recipes.find_one({
         "user_id": current_user_id,
         "recipe_data.id": request.recipe_data.get("id")
-    })
+    }, {"_id": 0})
     
     if existing:
         raise HTTPException(status_code=400, detail="Recipe already saved")
