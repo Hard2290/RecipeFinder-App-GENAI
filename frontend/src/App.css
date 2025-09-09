@@ -165,13 +165,7 @@ body {
   z-index: 2;
 }
 
-.logo-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px; /* Reduced from 15px to 8px for better alignment */
-  margin-bottom: 15px;
-}
+
 
 .logo-icon {
   width: 50px;
