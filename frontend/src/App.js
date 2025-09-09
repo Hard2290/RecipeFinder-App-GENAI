@@ -181,19 +181,9 @@ const App = () => {
 
     return (
       <Card className="recipe-card h-full">
-        <div className="recipe-image-container">
-          <img 
-            src={recipe.image || '/api/placeholder/300/200'} 
-            alt={recipe.title}
-            className="recipe-image"
-            onError={(e) => {
-              e.target.src = '/api/placeholder/300/200';
-            }}
-          />
-          <div className="recipe-time-badge">
-            <Clock className="w-3 h-3" />
-            <span>{recipe.readyInMinutes} min</span>
-          </div>
+        <div className="recipe-time-badge-header">
+          <Clock className="w-3 h-3" />
+          <span>{recipe.readyInMinutes} min</span>
         </div>
         
         <CardHeader className="pb-2">
