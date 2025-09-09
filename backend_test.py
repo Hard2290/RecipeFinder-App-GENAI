@@ -390,37 +390,64 @@ class RecipeFinderAPITester:
         return False
 
 def main():
-    print("🧪 Recipe Finder API Testing Suite")
-    print("=" * 50)
+    print("🧪 Recipe Finder API Testing Suite - LLM Integration")
+    print("=" * 60)
     
     tester = RecipeFinderAPITester()
     
     # Run all tests
     print("\n1️⃣ Testing Basic Connectivity...")
-    tester.test_root_endpoint()
+    basic_connectivity = tester.test_root_endpoint()
     
-    print("\n2️⃣ Testing Spoonacular API Integration...")
-    spoonacular_works = tester.test_spoonacular_api_directly()
+    print("\n2️⃣ Testing LLM Integration Status...")
+    llm_integration = tester.test_llm_integration_status()
     
-    print("\n3️⃣ Testing Recipe Search Functionality...")
-    tester.test_recipe_search_basic()
+    print("\n3️⃣ Testing Basic Recipe Search...")
+    basic_search = tester.test_recipe_search_basic()
     
-    print("\n4️⃣ Testing Detailed Recipe Analysis...")
-    detailed_success = tester.test_recipe_search_detailed()
+    print("\n4️⃣ Testing Italian Cuisine Filtering...")
+    italian_cuisine = tester.test_recipe_search_with_cuisine_italian()
     
-    print("\n5️⃣ Testing Edge Cases...")
-    tester.test_recipe_search_edge_cases()
+    print("\n5️⃣ Testing Chinese Cuisine Filtering...")
+    chinese_cuisine = tester.test_recipe_search_with_cuisine_chinese()
+    
+    print("\n6️⃣ Testing Indian Cuisine Filtering...")
+    indian_cuisine = tester.test_recipe_search_with_cuisine_indian()
+    
+    print("\n7️⃣ Testing Recipe Categorization Accuracy...")
+    categorization = tester.test_recipe_categorization_accuracy()
+    
+    print("\n8️⃣ Testing Edge Cases...")
+    edge_cases = tester.test_recipe_search_edge_cases()
     
     # Print final results
-    print("\n" + "=" * 50)
+    print("\n" + "=" * 60)
     print(f"📊 Final Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    if not spoonacular_works:
-        print("🚨 CRITICAL: Spoonacular API is not working - this is likely the root cause")
-    elif not detailed_success:
-        print("🚨 ISSUE: Recipe categorization or data processing has problems")
+    # Detailed analysis
+    critical_tests = [basic_connectivity, llm_integration, basic_search]
+    cuisine_tests = [italian_cuisine, chinese_cuisine, indian_cuisine]
+    quality_tests = [categorization, edge_cases]
+    
+    if not all(critical_tests):
+        print("🚨 CRITICAL: Basic functionality is not working")
+        if not llm_integration:
+            print("   - LLM integration is failing - check EMERGENT_LLM_KEY")
+        if not basic_connectivity:
+            print("   - API connectivity issues")
+        if not basic_search:
+            print("   - Recipe search endpoint is not working")
+    elif not any(cuisine_tests):
+        print("🚨 ISSUE: Cuisine filtering is not working for any cuisine")
+    elif not all(quality_tests):
+        print("⚠️  WARNING: Some quality issues detected")
+        if not categorization:
+            print("   - Recipe categorization has problems")
+        if not edge_cases:
+            print("   - Edge case handling needs improvement")
     elif tester.tests_passed == tester.tests_run:
-        print("✅ All tests passed - backend appears to be working correctly")
+        print("✅ All tests passed - LLM-powered recipe generation is working correctly!")
+        print("🎉 The Recipe Finder App backend is fully functional with AI integration")
     else:
         print("⚠️  Some tests failed - check individual test results above")
     
