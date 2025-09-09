@@ -125,7 +125,12 @@ const App = () => {
       recognitionInstance.lang = 'en-US';
       
       recognitionInstance.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        const transcript = event.results[0][0].transcript.trim();
+        
+        if (!transcript) {
+          setIsListening(false);
+          return;
+        }
         
         // Process the transcript to separate ingredients
         // Split by common separators and add commas between recognized ingredients
@@ -138,20 +143,35 @@ const App = () => {
           .filter(word => word.length > 2) // Filter out very short words
           .join(', ');                  // Join with commas
         
+        // Always add to existing ingredients (cumulative)
         const currentValue = ingredients.trim();
         const newValue = currentValue ? `${currentValue}, ${processedTranscript}` : processedTranscript;
+        
+        console.log('Voice Input - Current:', currentValue);
+        console.log('Voice Input - New transcript:', processedTranscript);
+        console.log('Voice Input - Final value:', newValue);
+        
         setIngredients(newValue);
         handleIngredientInput({ target: { value: newValue } });
         setIsListening(false);
+        
+        // Clear any existing error
+        setError('');
       };
       
       recognitionInstance.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        setError('Voice recognition error. Please try again or use text input.');
+        setError(`Voice recognition error: ${event.error}. Please try again or use text input.`);
         setIsListening(false);
       };
       
+      recognitionInstance.onstart = () => {
+        console.log('Voice recognition started');
+        setError(''); // Clear any existing errors when starting
+      };
+      
       recognitionInstance.onend = () => {
+        console.log('Voice recognition ended');
         setIsListening(false);
       };
       
