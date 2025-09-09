@@ -151,6 +151,33 @@ class RecipeSearchResponse(BaseModel):
     high: Dict[str, List[Recipe]]
 
 # Helper functions
+def hash_password(password: str) -> str:
+    """Hash password using SHA-256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash"""
+    return hash_password(plain_password) == hashed_password
+
+def create_access_token(user_id: str) -> str:
+    """Create JWT access token"""
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.utcnow() + JWT_EXPIRATION_DELTA
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """Get current authenticated user"""
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("user_id")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid authentication")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid authentication")
+
 def has_onion_garlic(ingredients: List[str]) -> bool:
     """Check if recipe contains onion/garlic ingredients"""
     onion_garlic_keywords = [
