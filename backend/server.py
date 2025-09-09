@@ -399,6 +399,109 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+# Authentication endpoints
+@api_router.post("/auth/register", response_model=Token)
+async def register(user_data: UserCreate):
+    """Register a new user"""
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create new user
+    user = User(
+        email=user_data.email,
+        name=user_data.name,
+        password_hash=hash_password(user_data.password)
+    )
+    
+    await db.users.insert_one(user.dict())
+    
+    # Create access token
+    access_token = create_access_token(user.id)
+    
+    user_response = UserResponse(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        created_at=user.created_at
+    )
+    
+    return Token(access_token=access_token, token_type="bearer", user=user_response)
+
+@api_router.post("/auth/login", response_model=Token)
+async def login(user_data: UserLogin):
+    """Login user"""
+    user = await db.users.find_one({"email": user_data.email})
+    if not user or not verify_password(user_data.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Create access token
+    access_token = create_access_token(user["id"])
+    
+    user_response = UserResponse(
+        id=user["id"],
+        email=user["email"],
+        name=user["name"],
+        created_at=user["created_at"]
+    )
+    
+    return Token(access_token=access_token, token_type="bearer", user=user_response)
+
+@api_router.get("/auth/me", response_model=UserResponse)
+async def get_current_user_info(current_user_id: str = Depends(get_current_user)):
+    """Get current user information"""
+    user = await db.users.find_one({"id": current_user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return UserResponse(
+        id=user["id"],
+        email=user["email"],
+        name=user["name"],
+        created_at=user["created_at"]
+    )
+
+# Recipe management endpoints
+@api_router.post("/recipes/save-favorite")
+async def save_favorite_recipe(request: SaveRecipeRequest, current_user_id: str = Depends(get_current_user)):
+    """Save a recipe as favorite"""
+    # Check if already saved
+    existing = await db.saved_recipes.find_one({
+        "user_id": current_user_id,
+        "recipe_data.id": request.recipe_data.get("id")
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Recipe already saved")
+    
+    saved_recipe = SavedRecipe(
+        user_id=current_user_id,
+        recipe_data=request.recipe_data
+    )
+    
+    await db.saved_recipes.insert_one(saved_recipe.dict())
+    return {"message": "Recipe saved successfully", "id": saved_recipe.id}
+
+@api_router.delete("/recipes/remove-favorite/{recipe_id}")
+async def remove_favorite_recipe(recipe_id: int, current_user_id: str = Depends(get_current_user)):
+    """Remove a recipe from favorites"""
+    result = await db.saved_recipes.delete_one({
+        "user_id": current_user_id,
+        "recipe_data.id": recipe_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Recipe not found in favorites")
+    
+    return {"message": "Recipe removed from favorites"}
+
+@api_router.get("/recipes/favorites")
+async def get_favorite_recipes(current_user_id: str = Depends(get_current_user)):
+    """Get user's favorite recipes"""
+    saved_recipes = await db.saved_recipes.find({"user_id": current_user_id}).to_list(1000)
+    return {"recipes": [recipe["recipe_data"] for recipe in saved_recipes]}
+
 @api_router.post("/recipes/search", response_model=RecipeSearchResponse)
 async def search_recipes(request: RecipeSearchRequest):
     """Search for recipes based on ingredients using AI generation"""
