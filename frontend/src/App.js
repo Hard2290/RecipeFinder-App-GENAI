@@ -233,16 +233,18 @@ const App = () => {
         cuisine: selectedCuisine,
         number: 100
       }, {
-        timeout: 60000 // 60 second timeout
+        timeout: 120000 // 2 minute timeout
       });
 
       setRecipes(response.data);
     } catch (err) {
       console.error('Error searching recipes:', err);
+      
+      // Enhanced error handling with specific messages
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        setError('Request timed out. The AI is taking longer than usual. Please try again.');
+        setError('AI service is taking longer than usual to generate recipes. This can happen during peak usage. Please try again in a moment.');
       } else if (err.response?.status === 504) {
-        setError('Connection timeout. Please try again.');
+        setError('Gateway timeout. The AI service is temporarily overloaded. Please try again in a few minutes.');
       } else if (err.response?.status === 502) {
         setError('AI service temporarily unavailable. Please try again in a moment.');
       } else if (err.response?.status === 422) {
@@ -251,10 +253,12 @@ const App = () => {
         setError('Server error. Please try again later.');
       } else if (err.response?.data?.detail) {
         setError(`Error: ${err.response.data.detail}`);
-      } else if (err.code === 'NETWORK_ERROR' || err.message.includes('Network Error')) {
-        setError('Network connection issue. Please check your connection and try again.');
+      } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+        setError('Unable to connect to recipe service. Please check your internet connection and try again.');
+      } else if (err.response?.status === 0 || !err.response) {
+        setError('Cannot reach the recipe service. Please check your internet connection and try again.');
       } else {
-        setError('Unable to generate recipes. Please try different ingredients or check your internet connection.');
+        setError('Unable to generate recipes at the moment. Please try again in a few minutes.');
       }
     } finally {
       setLoading(false);
