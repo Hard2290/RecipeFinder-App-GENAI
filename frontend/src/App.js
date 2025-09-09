@@ -437,15 +437,56 @@ const App = () => {
         {/* Search Section */}
         <section className="search-section">
           <div className="search-container">
+            {/* Cuisine Filter */}
+            <div className="filter-container">
+              <div className="cuisine-filter">
+                <Filter className="filter-icon" />
+                <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
+                  <SelectTrigger className="cuisine-select">
+                    <SelectValue placeholder="Select Cuisine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cuisineOptions.map((cuisine) => (
+                      <SelectItem key={cuisine.value} value={cuisine.value}>
+                        {cuisine.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="input-container">
-              <Input
-                type="text"
-                placeholder="What's in your kitchen? (e.g., chicken, rice, tomatoes, spinach)"
-                value={ingredients}
-                onChange={handleIngredientInput}
-                onKeyPress={handleKeyPress}
-                className="ingredient-input"
-              />
+              <div className="input-with-voice">
+                <Input
+                  type="text"
+                  placeholder="What's in your kitchen? Try saying it aloud! (e.g., chicken, rice, tomatoes)"
+                  value={ingredients}
+                  onChange={handleIngredientInput}
+                  onKeyPress={handleKeyPress}
+                  className="ingredient-input"
+                />
+                {voiceSupported && (
+                  <Button
+                    type="button"
+                    onClick={isListening ? stopListening : startListening}
+                    className={`voice-button ${isListening ? 'listening' : ''}`}
+                    disabled={loading}
+                  >
+                    {isListening ? (
+                      <>
+                        <MicOff className="w-5 h-5" />
+                        <span className="voice-indicator">Listening...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-5 h-5" />
+                        <span className="voice-text">Voice</span>
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
               <Button 
                 onClick={searchRecipes}
                 disabled={loading}
