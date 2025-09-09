@@ -1077,7 +1077,25 @@ body {
   }
   
   .tabs-list {
-    flex-direction: column;
+    flex-direction: row; /* Keep horizontal on mobile */
+    gap: 4px; /* Reduce gap for mobile */
+    padding: 8px; /* Reduce padding */
+  }
+  
+  .tab-trigger {
+    flex: 1;
+    padding: 12px 8px; /* Reduce padding for mobile */
+    font-size: 0.85rem; /* Slightly smaller text */
+  }
+  
+  .tab-icon {
+    width: 20px; /* Smaller icons on mobile */
+    height: 20px;
+  }
+  
+  .tab-time {
+    font-size: 0.75rem; /* Smaller time text */
+    line-height: 1.2;
   }
   
   .recipe-modal-stats {
@@ -1115,5 +1133,24 @@ body {
   .search-button {
     padding: 14px 20px;
     font-size: 1rem;
+  }
+  
+  .tabs-list {
+    gap: 2px; /* Even smaller gap for very small screens */
+    padding: 6px;
+  }
+  
+  .tab-trigger {
+    padding: 10px 6px; /* Further reduce padding */
+    font-size: 0.8rem;
+  }
+  
+  .tab-icon {
+    width: 18px; /* Even smaller icons */
+    height: 18px;
+  }
+  
+  .tab-time {
+    font-size: 0.7rem; /* Smaller time text for very small screens */
   }
 }
