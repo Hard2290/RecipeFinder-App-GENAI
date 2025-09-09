@@ -455,18 +455,19 @@ const App = () => {
             <div className="filter-container">
               <div className="cuisine-filter">
                 <Filter className="filter-icon" />
-                <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
-                  <SelectTrigger className="cuisine-select">
-                    <SelectValue placeholder="Select Cuisine" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <div className="cuisine-select-wrapper">
+                  <select 
+                    value={selectedCuisine} 
+                    onChange={(e) => setSelectedCuisine(e.target.value)}
+                    className="cuisine-select-native"
+                  >
                     {cuisineOptions.map((cuisine) => (
-                      <SelectItem key={cuisine.value} value={cuisine.value}>
+                      <option key={cuisine.value} value={cuisine.value}>
                         {cuisine.label}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </div>
               </div>
             </div>
 
