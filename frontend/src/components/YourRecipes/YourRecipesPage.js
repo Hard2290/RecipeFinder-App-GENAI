@@ -90,16 +90,17 @@ const YourRecipesPage = ({ isOpen, onClose }) => {
 
     return (
       <Card className="recipe-card h-full">
-        <div className="recipe-type-badge">
-          {isCustom ? (
-            <Utensils className="w-4 h-4 text-orange-600" />
-          ) : (
-            <Heart className="w-4 h-4 text-red-500" />
-          )}
-        </div>
-        
         <CardHeader className="pb-2">
-          <h3 className="recipe-title">{recipe.title}</h3>
+          <div className="recipe-header-with-icon">
+            <h3 className="recipe-title">{recipe.title}</h3>
+            <div className="recipe-type-icon">
+              {isCustom ? (
+                <Utensils className="w-5 h-5 text-orange-600" title="Your Custom Recipe" />
+              ) : (
+                <Heart className="w-5 h-5 text-red-500" title="Saved Favorite" />
+              )}
+            </div>
+          </div>
           <div className="recipe-meta">
             <Badge variant="outline" className="time-badge">
               <Clock className="w-3 h-3 mr-1" />
