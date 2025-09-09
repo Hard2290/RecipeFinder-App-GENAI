@@ -836,4 +836,13 @@ const RecipeFinderApp = () => {
   );
 };
 
+// Main App wrapper with AuthProvider
+const App = () => {
+  return (
+    <AuthProvider>
+      <RecipeFinderApp />
+    </AuthProvider>
+  );
+};
+
 export default App;
