@@ -329,6 +329,7 @@ const App = () => {
 
   return (
     <div className="app">
+      <FloatingFoodIcons />
       <div className="app-container">
         {/* Header */}
         <header className="app-header">
@@ -337,7 +338,10 @@ const App = () => {
               <ChefHat className="logo-icon" />
               <h1 className="app-title">My Kitchen Recipe Finder</h1>
             </div>
-            <p className="app-subtitle">Find delicious recipes with the ingredients you have</p>
+            <p className="app-subtitle">Transform your kitchen ingredients into culinary masterpieces</p>
+            <div className="motivation-text">
+              <span>Start your cooking adventure today!</span>
+            </div>
           </div>
         </header>
 
@@ -347,7 +351,7 @@ const App = () => {
             <div className="input-container">
               <Input
                 type="text"
-                placeholder="Enter ingredients (e.g., chicken, rice, tomatoes, spinach)"
+                placeholder="What's in your kitchen? (e.g., chicken, rice, tomatoes, spinach)"
                 value={ingredients}
                 onChange={handleIngredientInput}
                 onKeyPress={handleKeyPress}
@@ -358,14 +362,24 @@ const App = () => {
                 disabled={loading}
                 className="search-button"
               >
-                {loading ? 'Searching...' : 'Find Recipes'}
+                {loading ? (
+                  <>
+                    <div className="search-loading-spinner"></div>
+                    Cooking Up Magic...
+                  </>
+                ) : (
+                  <>
+                    <ChefHat className="w-5 h-5 mr-2" />
+                    Find Recipes
+                  </>
+                )}
               </Button>
             </div>
             
             {/* Ingredient Tags */}
             {ingredientTags.length > 0 && (
               <div className="ingredient-tags">
-                <span className="tags-label">Ingredients:</span>
+                <span className="tags-label">Your Ingredients:</span>
                 {ingredientTags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="ingredient-tag">
                     {tag}
@@ -375,6 +389,15 @@ const App = () => {
                     />
                   </Badge>
                 ))}
+              </div>
+            )}
+
+            {/* Cooking Tips */}
+            {!loading && !recipes && !error && ingredientTags.length === 0 && (
+              <div className="cooking-tips">
+                <div className="cooking-tip-text">
+                  {cookingTips[currentTip]}
+                </div>
               </div>
             )}
 
