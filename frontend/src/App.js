@@ -118,8 +118,20 @@ const App = () => {
       
       recognitionInstance.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
+        
+        // Process the transcript to separate ingredients
+        // Split by common separators and add commas between recognized ingredients
+        const processedTranscript = transcript
+          .toLowerCase()
+          .replace(/\s+and\s+/g, ', ')  // Replace "and" with commas
+          .replace(/\s+with\s+/g, ', ') // Replace "with" with commas  
+          .replace(/\s*,\s*/g, ', ')    // Normalize existing commas
+          .split(/\s+/)                 // Split by spaces to get individual words
+          .filter(word => word.length > 2) // Filter out very short words
+          .join(', ');                  // Join with commas
+        
         const currentValue = ingredients.trim();
-        const newValue = currentValue ? `${currentValue}, ${transcript}` : transcript;
+        const newValue = currentValue ? `${currentValue}, ${processedTranscript}` : processedTranscript;
         setIngredients(newValue);
         handleIngredientInput({ target: { value: newValue } });
         setIsListening(false);
