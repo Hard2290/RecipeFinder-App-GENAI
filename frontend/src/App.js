@@ -291,14 +291,20 @@ const App = () => {
             </div>
           </div>
           
-          <Dialog>
+          <Dialog modal={true}>
             <DialogTrigger asChild>
               <Button className="view-recipe-btn" size="sm">
                 <Eye className="w-4 h-4 mr-2" />
                 View Recipe
               </Button>
             </DialogTrigger>
-            <RecipeModal recipe={recipe} />
+            <DialogContent 
+              className="recipe-modal max-w-4xl" 
+              onInteractOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
+            >
+              <RecipeModal recipe={recipe} />
+            </DialogContent>
           </Dialog>
         </CardContent>
       </Card>
