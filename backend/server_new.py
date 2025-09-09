@@ -1,0 +1,318 @@
+from fastapi import FastAPI, APIRouter, HTTPException
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import logging
+import json
+from pathlib import Path
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+import uuid
+from datetime import datetime
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+# MongoDB connection
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
+
+# Create the main app without a prefix
+app = FastAPI(title="Recipe Finder API", description="Find recipes based on ingredients with AI-powered generation")
+
+# Create a router with the /api prefix
+api_router = APIRouter(prefix="/api")
+
+# LLM configuration
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+
+# Define Models
+class StatusCheck(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_name: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class StatusCheckCreate(BaseModel):
+    client_name: str
+
+class RecipeSearchRequest(BaseModel):
+    ingredients: str
+    number: Optional[int] = 100
+
+class NutrientInfo(BaseModel):
+    name: str
+    amount: float
+    unit: str
+
+class RecipeNutrition(BaseModel):
+    calories: float
+    protein: float
+    carbs: float
+    fat: float
+    fiber: float
+
+class Recipe(BaseModel):
+    id: int
+    title: str
+    image: str
+    readyInMinutes: int
+    servings: int
+    nutrition: RecipeNutrition
+    hasOnionGarlic: bool
+    ingredients: List[str]
+
+class RecipeSearchResponse(BaseModel):
+    low: Dict[str, List[Recipe]]
+    medium: Dict[str, List[Recipe]]
+    high: Dict[str, List[Recipe]]
+
+# Helper functions
+def has_onion_garlic(ingredients: List[str]) -> bool:
+    """Check if recipe contains onion/garlic ingredients"""
+    onion_garlic_keywords = [
+        'onion', 'onions', 'garlic', 'garlics', 'shallot', 'shallots',
+        'leek', 'leeks', 'scallion', 'scallions', 'chive', 'chives',
+        'spring onion', 'green onion', 'pearl onion', 'red onion',
+        'white onion', 'yellow onion', 'garlic powder', 'onion powder',
+        'garlic paste', 'garlic clove', 'minced garlic'
+    ]
+    
+    for ingredient in ingredients:
+        ingredient_lower = ingredient.lower()
+        for keyword in onion_garlic_keywords:
+            if keyword in ingredient_lower:
+                return True
+    return False
+
+def categorize_recipes(recipes: List[Recipe]) -> RecipeSearchResponse:
+    """Categorize recipes by cooking time and dietary restrictions"""
+    low_with = []
+    low_without = []
+    medium_with = []
+    medium_without = []
+    high_with = []
+    high_without = []
+    
+    for recipe in recipes:
+        # Categorize by time
+        if recipe.readyInMinutes < 20:
+            if recipe.hasOnionGarlic:
+                low_with.append(recipe)
+            else:
+                low_without.append(recipe)
+        elif 20 <= recipe.readyInMinutes <= 45:
+            if recipe.hasOnionGarlic:
+                medium_with.append(recipe)
+            else:
+                medium_without.append(recipe)
+        else:  # > 45 minutes
+            if recipe.hasOnionGarlic:
+                high_with.append(recipe)
+            else:
+                high_without.append(recipe)
+    
+    return RecipeSearchResponse(
+        low={
+            "with_onion_garlic": low_with[:5],
+            "without_onion_garlic": low_without[:5]
+        },
+        medium={
+            "with_onion_garlic": medium_with[:5],
+            "without_onion_garlic": medium_without[:5]
+        },
+        high={
+            "with_onion_garlic": high_with[:5],
+            "without_onion_garlic": high_without[:5]
+        }
+    )
+
+async def generate_recipes_with_llm(ingredients: str) -> List[Recipe]:
+    """Generate diverse recipes using LLM based on user ingredients"""
+    try:
+        # Initialize LLM chat
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"recipe_gen_{uuid.uuid4()}",
+            system_message="""You are a professional chef and nutritionist. Generate diverse, realistic recipes based on the provided ingredients. 
+
+Return recipes in this exact JSON format:
+{
+  "recipes": [
+    {
+      "id": 1001,
+      "title": "Recipe Name",
+      "readyInMinutes": 25,
+      "servings": 4,
+      "calories": 350.0,
+      "protein": 20.0,
+      "carbs": 35.0,
+      "fat": 15.0,
+      "fiber": 6.0,
+      "ingredients": ["ingredient1", "ingredient2", "ingredient3", "salt", "pepper"],
+      "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400"
+    }
+  ]
+}
+
+Requirements:
+1. Generate 15-20 diverse recipes with different cooking times (mix of <20min, 20-45min, >45min)
+2. Use realistic cooking times, servings, and nutritional values
+3. Include the user's ingredients prominently in recipes
+4. Add common cooking ingredients (salt, pepper, oil, etc.)
+5. Some recipes should include onion/garlic, others should not
+6. Use high-quality Unsplash food image URLs (different for each recipe)
+7. Make recipe titles creative and appetizing
+8. Ensure nutritional values are realistic for the ingredients and portions
+9. Each recipe should have 4-8 ingredients total"""
+        ).with_model("openai", "gpt-4o-mini")
+        
+        # Create the prompt
+        user_message = UserMessage(
+            text=f"""Generate diverse recipes using these ingredients: {ingredients}
+
+Please create a variety of recipes including:
+- Quick recipes (under 20 minutes): appetizers, salads, simple stir-fries
+- Medium recipes (20-45 minutes): main dishes, baked items, soups
+- Longer recipes (over 45 minutes): slow-cooked dishes, roasts, complex preparations
+
+Make sure to:
+1. Use the provided ingredients creatively
+2. Include both recipes with onion/garlic and without
+3. Provide realistic nutritional information
+4. Use appealing recipe names
+5. Include appropriate cooking times for each recipe type
+
+Return only the JSON response, no other text."""
+        )
+        
+        # Get response from LLM
+        response = await chat.send_message(user_message)
+        
+        # Parse the JSON response
+        try:
+            recipe_data = json.loads(response)
+            recipes = []
+            
+            for i, recipe_json in enumerate(recipe_data.get('recipes', [])):
+                # Ensure unique IDs
+                recipe_id = recipe_json.get('id', 1000 + i)
+                
+                # Extract recipe data with defaults
+                title = recipe_json.get('title', f'Recipe {i+1}')
+                ready_in_minutes = recipe_json.get('readyInMinutes', 30)
+                servings = recipe_json.get('servings', 2)
+                ingredients_list = recipe_json.get('ingredients', [])
+                
+                # Extract nutritional information
+                calories = recipe_json.get('calories', 300.0)
+                protein = recipe_json.get('protein', 15.0)
+                carbs = recipe_json.get('carbs', 30.0)
+                fat = recipe_json.get('fat', 10.0)
+                fiber = recipe_json.get('fiber', 5.0)
+                
+                nutrition = RecipeNutrition(
+                    calories=calories,
+                    protein=protein,
+                    carbs=carbs,
+                    fat=fat,
+                    fiber=fiber
+                )
+                
+                # Check for onion/garlic
+                has_onion_garlic_flag = has_onion_garlic(ingredients_list)
+                
+                # Get image URL or use default
+                image_url = recipe_json.get('image', 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400')
+                
+                # Create recipe object
+                recipe = Recipe(
+                    id=recipe_id,
+                    title=title,
+                    image=image_url,
+                    readyInMinutes=ready_in_minutes,
+                    servings=servings,
+                    nutrition=nutrition,
+                    hasOnionGarlic=has_onion_garlic_flag,
+                    ingredients=ingredients_list
+                )
+                
+                recipes.append(recipe)
+            
+            return recipes
+            
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse LLM response as JSON: {e}")
+            logging.error(f"LLM Response: {response}")
+            # Return empty list if JSON parsing fails
+            return []
+            
+    except Exception as e:
+        logging.error(f"Error generating recipes with LLM: {str(e)}")
+        return []
+
+# API Routes
+@api_router.get("/")
+async def root():
+    return {"message": "Recipe Finder API is running"}
+
+@api_router.post("/status", response_model=StatusCheck)
+async def create_status_check(input: StatusCheckCreate):
+    status_dict = input.dict()
+    status_obj = StatusCheck(**status_dict)
+    _ = await db.status_checks.insert_one(status_obj.dict())
+    return status_obj
+
+@api_router.get("/status", response_model=List[StatusCheck])
+async def get_status_checks():
+    status_checks = await db.status_checks.find().to_list(1000)
+    return [StatusCheck(**status_check) for status_check in status_checks]
+
+@api_router.post("/recipes/search", response_model=RecipeSearchResponse)
+async def search_recipes(request: RecipeSearchRequest):
+    """Search for recipes based on ingredients using LLM"""
+    try:
+        # Generate recipes using LLM
+        recipes = await generate_recipes_with_llm(request.ingredients)
+        
+        # If LLM fails, return empty categorized response
+        if not recipes:
+            logging.warning("LLM recipe generation failed, returning empty response")
+            return RecipeSearchResponse(
+                low={"with_onion_garlic": [], "without_onion_garlic": []},
+                medium={"with_onion_garlic": [], "without_onion_garlic": []},
+                high={"with_onion_garlic": [], "without_onion_garlic": []}
+            )
+        
+        # Categorize and return recipes
+        result = categorize_recipes(recipes)
+        return result
+        
+    except Exception as e:
+        logging.error(f"Unexpected error in recipe search: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# Include the router in the main app
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
