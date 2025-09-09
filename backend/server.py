@@ -41,6 +41,7 @@ class StatusCheckCreate(BaseModel):
 
 class RecipeSearchRequest(BaseModel):
     ingredients: str
+    cuisine: Optional[str] = 'any'
     number: Optional[int] = 100
 
 class NutrientInfo(BaseModel):
