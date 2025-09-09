@@ -77,14 +77,15 @@ class RecipeFinderAPITester:
             data=test_data
         )
 
-    def test_recipe_search_detailed(self):
-        """Test detailed recipe search and analyze response structure"""
+    def test_recipe_search_with_cuisine_italian(self):
+        """Test recipe search with Italian cuisine"""
         test_data = {
-            "ingredients": "chicken, rice, tomatoes, spinach",
-            "number": 50
+            "ingredients": "chicken, rice, tomatoes, onion",
+            "cuisine": "italian",
+            "number": 20
         }
         success, response = self.run_test(
-            "Detailed Recipe Search", 
+            "Italian Cuisine Recipe Search", 
             "POST", 
             "api/recipes/search", 
             200, 
@@ -92,64 +93,134 @@ class RecipeFinderAPITester:
         )
         
         if success and response:
-            print("\n📊 Analyzing Recipe Response Structure:")
-            
-            # Check main structure
-            expected_keys = ['low', 'medium', 'high']
-            for key in expected_keys:
-                if key in response:
-                    print(f"✅ Found '{key}' category")
-                    category = response[key]
-                    
-                    # Check subcategories
-                    if 'with_onion_garlic' in category:
-                        with_count = len(category['with_onion_garlic'])
-                        print(f"   - With Onion-Garlic: {with_count} recipes")
-                    else:
-                        print(f"   ❌ Missing 'with_onion_garlic' in {key}")
-                        
-                    if 'without_onion_garlic' in category:
-                        without_count = len(category['without_onion_garlic'])
-                        print(f"   - Without Onion-Garlic: {without_count} recipes")
-                    else:
-                        print(f"   ❌ Missing 'without_onion_garlic' in {key}")
-                else:
-                    print(f"❌ Missing '{key}' category")
-            
-            # Analyze individual recipes if any exist
-            total_recipes = 0
-            for category in ['low', 'medium', 'high']:
-                if category in response:
-                    for subcategory in ['with_onion_garlic', 'without_onion_garlic']:
-                        if subcategory in response[category]:
-                            recipes = response[category][subcategory]
-                            total_recipes += len(recipes)
-                            
-                            if recipes:  # If there are recipes, analyze the first one
-                                sample_recipe = recipes[0]
-                                print(f"\n📋 Sample Recipe from {category}.{subcategory}:")
-                                print(f"   - ID: {sample_recipe.get('id', 'N/A')}")
-                                print(f"   - Title: {sample_recipe.get('title', 'N/A')}")
-                                print(f"   - Ready in: {sample_recipe.get('readyInMinutes', 'N/A')} minutes")
-                                print(f"   - Has Onion/Garlic: {sample_recipe.get('hasOnionGarlic', 'N/A')}")
-                                
-                                nutrition = sample_recipe.get('nutrition', {})
-                                if nutrition:
-                                    print(f"   - Calories: {nutrition.get('calories', 'N/A')}")
-                                    print(f"   - Protein: {nutrition.get('protein', 'N/A')}g")
-                                    print(f"   - Carbs: {nutrition.get('carbs', 'N/A')}g")
-                                    print(f"   - Fat: {nutrition.get('fat', 'N/A')}g")
-                                    print(f"   - Fiber: {nutrition.get('fiber', 'N/A')}g")
-                                break
-            
-            print(f"\n📈 Total Recipes Found: {total_recipes}")
-            
-            if total_recipes == 0:
-                print("⚠️  WARNING: No recipes found in any category!")
-                print("This explains why frontend shows 'No recipes found for this category'")
+            print("\n🍝 Analyzing Italian Recipe Response:")
+            total_recipes = self._analyze_recipe_response(response)
+            if total_recipes > 0:
+                print("✅ Italian recipes generated successfully")
+                return True
+            else:
+                print("❌ No Italian recipes generated")
                 return False
-                
         return success
+
+    def test_recipe_search_with_cuisine_chinese(self):
+        """Test recipe search with Chinese cuisine"""
+        test_data = {
+            "ingredients": "tofu, broccoli, soy sauce",
+            "cuisine": "chinese",
+            "number": 20
+        }
+        success, response = self.run_test(
+            "Chinese Cuisine Recipe Search", 
+            "POST", 
+            "api/recipes/search", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            print("\n🥢 Analyzing Chinese Recipe Response:")
+            total_recipes = self._analyze_recipe_response(response)
+            if total_recipes > 0:
+                print("✅ Chinese recipes generated successfully")
+                return True
+            else:
+                print("❌ No Chinese recipes generated")
+                return False
+        return success
+
+    def test_recipe_search_with_cuisine_indian(self):
+        """Test recipe search with Indian cuisine"""
+        test_data = {
+            "ingredients": "chicken, rice, onion, garlic, ginger",
+            "cuisine": "indian",
+            "number": 20
+        }
+        success, response = self.run_test(
+            "Indian Cuisine Recipe Search", 
+            "POST", 
+            "api/recipes/search", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            print("\n🍛 Analyzing Indian Recipe Response:")
+            total_recipes = self._analyze_recipe_response(response)
+            if total_recipes > 0:
+                print("✅ Indian recipes generated successfully")
+                return True
+            else:
+                print("❌ No Indian recipes generated")
+                return False
+        return success
+
+    def _analyze_recipe_response(self, response):
+        """Helper method to analyze recipe response structure"""
+        total_recipes = 0
+        
+        # Check main structure
+        expected_keys = ['low', 'medium', 'high']
+        for key in expected_keys:
+            if key in response:
+                print(f"✅ Found '{key}' category")
+                category = response[key]
+                
+                # Check subcategories
+                if 'with_onion_garlic' in category:
+                    with_count = len(category['with_onion_garlic'])
+                    total_recipes += with_count
+                    print(f"   - With Onion-Garlic: {with_count} recipes")
+                else:
+                    print(f"   ❌ Missing 'with_onion_garlic' in {key}")
+                    
+                if 'without_onion_garlic' in category:
+                    without_count = len(category['without_onion_garlic'])
+                    total_recipes += without_count
+                    print(f"   - Without Onion-Garlic: {without_count} recipes")
+                else:
+                    print(f"   ❌ Missing 'without_onion_garlic' in {key}")
+            else:
+                print(f"❌ Missing '{key}' category")
+        
+        # Analyze individual recipes if any exist
+        for category in ['low', 'medium', 'high']:
+            if category in response:
+                for subcategory in ['with_onion_garlic', 'without_onion_garlic']:
+                    if subcategory in response[category]:
+                        recipes = response[category][subcategory]
+                        
+                        if recipes:  # If there are recipes, analyze the first one
+                            sample_recipe = recipes[0]
+                            print(f"\n📋 Sample Recipe from {category}.{subcategory}:")
+                            print(f"   - ID: {sample_recipe.get('id', 'N/A')}")
+                            print(f"   - Title: {sample_recipe.get('title', 'N/A')}")
+                            print(f"   - Ready in: {sample_recipe.get('readyInMinutes', 'N/A')} minutes")
+                            print(f"   - Has Onion/Garlic: {sample_recipe.get('hasOnionGarlic', 'N/A')}")
+                            
+                            # Check instructions
+                            instructions = sample_recipe.get('instructions', [])
+                            print(f"   - Instructions: {len(instructions)} steps")
+                            if instructions:
+                                print(f"   - First step: {instructions[0][:100]}...")
+                            
+                            # Check ingredients
+                            ingredients = sample_recipe.get('ingredients', [])
+                            print(f"   - Ingredients: {len(ingredients)} items")
+                            if ingredients:
+                                print(f"   - Sample ingredients: {', '.join(ingredients[:3])}...")
+                            
+                            nutrition = sample_recipe.get('nutrition', {})
+                            if nutrition:
+                                print(f"   - Calories: {nutrition.get('calories', 'N/A')}")
+                                print(f"   - Protein: {nutrition.get('protein', 'N/A')}g")
+                                print(f"   - Carbs: {nutrition.get('carbs', 'N/A')}g")
+                                print(f"   - Fat: {nutrition.get('fat', 'N/A')}g")
+                                print(f"   - Fiber: {nutrition.get('fiber', 'N/A')}g")
+                            break
+        
+        print(f"\n📈 Total Recipes Found: {total_recipes}")
+        return total_recipes
 
     def test_recipe_search_edge_cases(self):
         """Test edge cases for recipe search"""
