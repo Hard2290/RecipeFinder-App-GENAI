@@ -273,19 +273,22 @@ async def get_status_checks():
 
 @api_router.post("/recipes/search", response_model=RecipeSearchResponse)
 async def search_recipes(request: RecipeSearchRequest):
-    """Search for recipes based on ingredients using LLM"""
+    """Search for recipes based on ingredients using AI generation"""
     try:
         # Generate recipes using LLM
+        logging.info(f"Generating recipes for ingredients: {request.ingredients}")
         recipes = await generate_recipes_with_llm(request.ingredients)
         
-        # If LLM fails, return empty categorized response
         if not recipes:
-            logging.warning("LLM recipe generation failed, returning empty response")
+            logging.warning("LLM failed to generate recipes, returning empty result")
+            # Return empty categorized response
             return RecipeSearchResponse(
                 low={"with_onion_garlic": [], "without_onion_garlic": []},
                 medium={"with_onion_garlic": [], "without_onion_garlic": []},
                 high={"with_onion_garlic": [], "without_onion_garlic": []}
             )
+        
+        logging.info(f"Generated {len(recipes)} recipes successfully")
         
         # Categorize and return recipes
         result = categorize_recipes(recipes)
@@ -293,7 +296,7 @@ async def search_recipes(request: RecipeSearchRequest):
         
     except Exception as e:
         logging.error(f"Unexpected error in recipe search: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Failed to generate recipes")
 
 # Include the router in the main app
 app.include_router(api_router)
