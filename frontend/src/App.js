@@ -484,6 +484,114 @@ const App = () => {
             <p>Searching for delicious recipes...</p>
           </div>
         )}
+        
+        {/* Recipe Modal - Outside of recipe cards to prevent re-rendering */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent 
+            className="recipe-modal max-w-4xl" 
+            onInteractOutside={(e) => e.preventDefault()}
+          >
+            {selectedRecipe && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="recipe-modal-title">{selectedRecipe.title}</DialogTitle>
+                </DialogHeader>
+                
+                <div className="recipe-modal-content">
+                  <div className="recipe-modal-info">
+                    <div className="recipe-modal-stats">
+                      <div className="stat-item">
+                        <Clock className="stat-icon" />
+                        <span>{selectedRecipe.readyInMinutes} min</span>
+                      </div>
+                      <div className="stat-item">
+                        <Users className="stat-icon" />
+                        <span>{selectedRecipe.servings} servings</span>
+                      </div>
+                      <div className="stat-item">
+                        <div className="calories-large">
+                          <span className="calories-number-large">{Math.round(selectedRecipe.nutrition.calories)}</span>
+                          <span className="calories-text-large">cal</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="ingredients-section">
+                      <h3>Ingredients</h3>
+                      <div className="ingredients-list-detailed">
+                        {selectedRecipe.ingredients.map((ingredient, index) => (
+                          <div key={`ingredient-${index}`} className="ingredient-item">
+                            <span className="ingredient-bullet">•</span>
+                            <span className="ingredient-name">{ingredient}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="instructions-section">
+                      <h3>Cooking Instructions</h3>
+                      <div className="instructions-list">
+                        {selectedRecipe.instructions && selectedRecipe.instructions.length > 0 ? (
+                          selectedRecipe.instructions.map((instruction, index) => (
+                            <div key={`instruction-${index}`} className="instruction-item">
+                              <span className="instruction-number">{index + 1}</span>
+                              <span className="instruction-text">{instruction}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="no-instructions">Cooking instructions not available for this recipe.</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="nutrition-detailed">
+                      <h3>Nutritional Information</h3>
+                      <div className="nutrition-grid">
+                        <div className="nutrition-detail-item">
+                          <span className="nutrition-label">Protein</span>
+                          <span className="nutrition-value">{Math.round(selectedRecipe.nutrition.protein)}g</span>
+                          <Progress value={(selectedRecipe.nutrition.protein / 50) * 100} className="nutrition-bar nutrition-protein" />
+                        </div>
+                        <div className="nutrition-detail-item">
+                          <span className="nutrition-label">Carbohydrates</span>
+                          <span className="nutrition-value">{Math.round(selectedRecipe.nutrition.carbs)}g</span>
+                          <Progress value={(selectedRecipe.nutrition.carbs / 80) * 100} className="nutrition-bar nutrition-carbs" />
+                        </div>
+                        <div className="nutrition-detail-item">
+                          <span className="nutrition-label">Fats</span>
+                          <span className="nutrition-value">{Math.round(selectedRecipe.nutrition.fat)}g</span>
+                          <Progress value={(selectedRecipe.nutrition.fat / 30) * 100} className="nutrition-bar nutrition-fats" />
+                        </div>
+                        <div className="nutrition-detail-item">
+                          <span className="nutrition-label">Fiber</span>
+                          <span className="nutrition-value">{Math.round(selectedRecipe.nutrition.fiber)}g</span>
+                          <Progress value={(selectedRecipe.nutrition.fiber / 25) * 100} className="nutrition-bar nutrition-fiber" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="recipe-notes">
+                      <h3>Recipe Notes</h3>
+                      <p>This {selectedRecipe.hasOnionGarlic ? 'traditional' : 'onion-garlic free'} recipe serves {selectedRecipe.servings} people and can be prepared in approximately {selectedRecipe.readyInMinutes} minutes.</p>
+                      <p>Perfect for a {selectedRecipe.readyInMinutes < 20 ? 'quick meal' : selectedRecipe.readyInMinutes < 45 ? 'medium-prep dish' : 'leisurely cooking session'} when you have {selectedRecipe.ingredients.slice(0, 3).join(', ')} available.</p>
+                    </div>
+                    
+                    <div className="modal-close-section">
+                      <Button 
+                        onClick={closeRecipeModal}
+                        className="close-modal-btn"
+                        variant="outline"
+                        size="lg"
+                      >
+                        Close Recipe
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
