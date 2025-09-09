@@ -1058,16 +1058,19 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .logo-section {
-    gap: 6px; /* Even smaller gap on mobile */
+    gap: 3px; /* Much smaller gap on mobile */
+    align-items: center; /* Ensure proper alignment */
+    justify-content: center;
   }
   
   .logo-icon {
-    width: 40px; /* Slightly smaller icon on mobile */
-    height: 40px;
+    width: 35px; /* Smaller icon on mobile */
+    height: 35px;
   }
   
   .app-title {
     font-size: 2rem;
+    line-height: 0.9; /* Tighter line height on mobile */
   }
   
   .input-container {
