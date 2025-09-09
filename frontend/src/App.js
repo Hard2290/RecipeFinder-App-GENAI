@@ -112,6 +112,11 @@ const App = () => {
   const [currentTip, setCurrentTip] = useState(0);
 
   useEffect(() => {
+    // Keep ref in sync with ingredients state
+    ingredientsRef.current = ingredients;
+  }, [ingredients]);
+
+  useEffect(() => {
     // Initialize floating icons
     const icons = foodIcons.map((icon, index) => ({
       id: index,
