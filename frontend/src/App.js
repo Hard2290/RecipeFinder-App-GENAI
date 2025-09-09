@@ -27,6 +27,9 @@ const App = () => {
   const [recognition, setRecognition] = useState(null);
   const [voiceSupported, setVoiceSupported] = useState(false);
   
+  // Ref to get current ingredients value in voice callback
+  const ingredientsRef = useRef('');
+  
   // Cuisine filter state
   const [selectedCuisine, setSelectedCuisine] = useState('any');
   
