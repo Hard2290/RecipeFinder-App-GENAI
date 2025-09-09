@@ -647,6 +647,7 @@ body {
   align-items: center;
   gap: 5px;
   z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .recipe-title {
@@ -654,7 +655,16 @@ body {
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 10px;
-  line-height: 1.3;
+  line-height: 1.4;
+  padding-right: 100px; /* Space for the time badge */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  min-height: 2.8rem; /* Ensure space for 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: visible; /* Allow text to show */
 }
 
 .recipe-calories {
