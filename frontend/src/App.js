@@ -135,7 +135,7 @@ const App = () => {
     if (!recipe) return null;
 
     return (
-      <DialogContent className="recipe-modal max-w-4xl">
+      <DialogContent className="recipe-modal max-w-4xl" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="recipe-modal-title">{recipe.title}</DialogTitle>
         </DialogHeader>
