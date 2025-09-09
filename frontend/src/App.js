@@ -31,9 +31,6 @@ const RecipeFinderApp = () => {
   const [savedRecipeIds, setSavedRecipeIds] = useState(new Set());
   
   const { user, logout, getAuthHeaders, isAuthenticated } = useAuth();
-  const [error, setError] = useState('');
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Voice recognition states
   const [isListening, setIsListening] = useState(false);
