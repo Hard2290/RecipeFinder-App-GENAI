@@ -141,7 +141,21 @@ const App = () => {
       setVoiceSupported(false);
     }
 
-    return () => clearInterval(tipInterval);
+    // Fix ResizeObserver error by catching and ignoring it
+    const resizeObserverErrorHandler = (e) => {
+      if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    window.addEventListener('error', resizeObserverErrorHandler);
+
+    return () => {
+      clearInterval(tipInterval);
+      window.removeEventListener('error', resizeObserverErrorHandler);
+    };
   }, []);
 
   const FloatingFoodIcons = () => (
