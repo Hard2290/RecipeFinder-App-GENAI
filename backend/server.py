@@ -34,6 +34,79 @@ api_router = APIRouter(prefix="/api")
 
 # LLM configuration
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+JWT_SECRET = os.environ.get('JWT_SECRET', secrets.token_urlsafe(32))
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_DELTA = timedelta(days=30)
+
+# Security
+security = HTTPBearer()
+
+# Define Models
+class StatusCheck(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_name: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class StatusCheckCreate(BaseModel):
+    client_name: str
+
+# User Authentication Models
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class User(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: str
+    name: str
+    password_hash: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    created_at: datetime
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+# Custom Recipe Models
+class CustomRecipeCreate(BaseModel):
+    title: str
+    ingredients: List[str]
+    instructions: List[str]
+    servings: int = 4
+
+class CustomRecipe(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    title: str
+    ingredients: List[str]
+    instructions: List[str]
+    servings: int
+    nutrition: 'RecipeNutrition'
+    readyInMinutes: int
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    share_token: str = Field(default_factory=lambda: secrets.token_urlsafe(16))
+
+# Saved Recipe Models
+class SavedRecipe(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    recipe_data: Dict[str, Any]  # Store the full recipe JSON
+    saved_at: datetime = Field(default_factory=datetime.utcnow)
+    share_token: str = Field(default_factory=lambda: secrets.token_urlsafe(16))
+
+class SaveRecipeRequest(BaseModel):
+    recipe_data: Dict[str, Any]
 
 # Define Models
 class StatusCheck(BaseModel):
