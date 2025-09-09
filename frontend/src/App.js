@@ -554,6 +554,7 @@ const App = () => {
                       onClick={isListening ? stopListening : startListening}
                       className={`voice-button ${isListening ? 'listening' : ''}`}
                       disabled={loading}
+                      title={ingredientTags.length > 0 ? 'Add more ingredients with voice' : 'Add ingredients with voice'}
                     >
                       {isListening ? (
                         <>
@@ -563,7 +564,9 @@ const App = () => {
                       ) : (
                         <>
                           <Mic className="w-5 h-5" />
-                          <span className="voice-text">Voice</span>
+                          <span className="voice-text">
+                            {ingredientTags.length > 0 ? 'Add More' : 'Voice'}
+                          </span>
                         </>
                       )}
                     </Button>
