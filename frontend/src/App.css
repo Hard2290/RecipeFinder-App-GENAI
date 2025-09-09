@@ -1058,8 +1058,8 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .logo-section {
-    gap: 3px; /* Much smaller gap on mobile */
-    align-items: center; /* Ensure proper alignment */
+    gap: 2px; /* Very small gap on mobile */
+    align-items: center;
     justify-content: center;
   }
   
@@ -1071,6 +1071,7 @@ body {
   .app-title {
     font-size: 2rem;
     line-height: 0.9; /* Tighter line height on mobile */
+    margin-left: 0; /* Ensure no extra margin */
   }
   
   .input-container {
