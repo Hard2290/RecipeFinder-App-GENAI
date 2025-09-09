@@ -207,8 +207,12 @@ Make sure to:
 Return only the JSON response, no other text."""
         )
         
-        # Get response from LLM
-        response = await chat.send_message(user_message)
+        # Get response from LLM with timeout handling
+        try:
+            response = await asyncio.wait_for(chat.send_message(user_message), timeout=45.0)
+        except asyncio.TimeoutError:
+            logging.error("LLM request timed out after 45 seconds")
+            return []
         
         # Parse the JSON response
         try:
