@@ -1057,6 +1057,15 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .logo-section {
+    gap: 6px; /* Even smaller gap on mobile */
+  }
+  
+  .logo-icon {
+    width: 40px; /* Slightly smaller icon on mobile */
+    height: 40px;
+  }
+  
   .app-title {
     font-size: 2rem;
   }
