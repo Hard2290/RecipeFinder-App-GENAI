@@ -29,6 +29,7 @@ const RecipeFinderApp = () => {
   // Authentication and recipe management states
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isYourRecipesOpen, setIsYourRecipesOpen] = useState(false);
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
   const [savedRecipeIds, setSavedRecipeIds] = useState(new Set());
   
   const { user, logout, getAuthHeaders, isAuthenticated } = useAuth();
