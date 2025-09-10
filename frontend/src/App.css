@@ -1087,6 +1087,24 @@ body {
   gap: 12px;
 }
 
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-account-btn {
+  color: var(--text-secondary);
+  border-color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.delete-account-btn:hover {
+  color: #f44336;
+  border-color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
 .your-recipes-btn {
   background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
