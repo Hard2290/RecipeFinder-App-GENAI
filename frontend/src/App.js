@@ -8,10 +8,11 @@ import { Badge } from './components/ui/badge';
 import { Progress } from './components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
-import { Clock, ChefHat, Zap, Timer, X, Users, Eye, Mic, MicOff, Filter, Trash2, Heart, BookOpen, User, LogOut } from 'lucide-react';
+import { Clock, ChefHat, Zap, Timer, X, Users, Eye, Mic, MicOff, Filter, Trash2, Heart, BookOpen, User, LogOut, Settings } from 'lucide-react';
 import axios from 'axios';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginModal from './components/Auth/LoginModal';
+import DeleteAccountModal from './components/Auth/DeleteAccountModal';
 import YourRecipesPage from './components/YourRecipes/YourRecipesPage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
