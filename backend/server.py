@@ -190,6 +190,45 @@ def create_access_token(user_id: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
+def create_reset_token() -> str:
+    """Create secure password reset token"""
+    return secrets.token_urlsafe(32)
+
+async def send_password_reset_email(email: str, reset_token: str, user_name: str):
+    """Send password reset email (mock implementation for demo)"""
+    try:
+        # In production, use a real email service like SendGrid, AWS SES, etc.
+        # For now, we'll log the reset link
+        reset_link = f"http://localhost:3000/reset-password?token={reset_token}"
+        
+        logging.info(f"Password reset email would be sent to {email}")
+        logging.info(f"Reset link: {reset_link}")
+        logging.info(f"Reset token: {reset_token}")
+        
+        # Mock email content
+        email_content = f"""
+        Dear {user_name},
+        
+        You requested a password reset for your Recipe Finder account.
+        
+        Click the link below to reset your password:
+        {reset_link}
+        
+        This link will expire in 1 hour.
+        
+        If you didn't request this reset, please ignore this email.
+        
+        Best regards,
+        Recipe Finder Team
+        """
+        
+        logging.info(f"Email content: {email_content}")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to send password reset email: {str(e)}")
+        return False
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
     """Get current authenticated user"""
     try:
