@@ -640,14 +640,27 @@ const RecipeFinderApp = () => {
                       <span>{user?.name}</span>
                     </div>
                     
-                    <Button
-                      onClick={logout}
-                      className="logout-btn"
-                      variant="outline"
-                      size="sm"
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </Button>
+                    <div className="user-actions">
+                      <Button
+                        onClick={() => setIsDeleteAccountOpen(true)}
+                        className="delete-account-btn"
+                        variant="outline"
+                        size="sm"
+                        title="Delete Account"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                      
+                      <Button
+                        onClick={logout}
+                        className="logout-btn"
+                        variant="outline"
+                        size="sm"
+                        title="Sign Out"
+                      >
+                        <LogOut className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <Button
