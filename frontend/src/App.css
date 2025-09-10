@@ -1855,6 +1855,15 @@ body {
     order: -1; /* Put user info first on mobile */
   }
   
+  .user-actions {
+    gap: 6px; /* Smaller gap on mobile */
+  }
+  
+  .delete-account-btn,
+  .logout-btn {
+    padding: 8px; /* Smaller padding on mobile */
+  }
+  
   /* Mobile responsive for recipe header with icon */
   .recipe-header-with-icon {
     gap: 8px; /* Smaller gap on mobile */
