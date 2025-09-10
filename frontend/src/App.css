@@ -1656,6 +1656,166 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
+
+/* Forgot Password Modal Styles */
+.forgot-password-success {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.success-icon {
+  margin-bottom: 16px;
+}
+
+.success-message {
+  margin-bottom: 24px;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.forgot-password-info {
+  margin-bottom: 24px;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin: 16px 0;
+}
+
+.forgot-password-btn {
+  background: none;
+  border: none;
+  color: var(--primary-green);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-btn:hover {
+  color: #2E7D32;
+}
+
+.back-to-login-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+  margin: 0 auto;
+}
+
+.back-to-login-btn:hover {
+  color: var(--primary-green);
+}
+
+/* Delete Account Modal Styles */
+.delete-account-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.delete-account-warning {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.warning-content {
+  color: var(--text-primary);
+}
+
+.warning-title {
+  color: #f44336;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.warning-text {
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.warning-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.warning-list li {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.delete-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.confirmation-input {
+  font-family: monospace;
+  background: rgba(244, 67, 54, 0.05);
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.confirmation-input:focus {
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.cancel-btn {
+  color: var(--text-secondary);
+  border-color: var(--text-secondary);
+}
+
+.cancel-btn:hover {
+  background: var(--text-secondary);
+  color: white;
+}
+
+.delete-account-btn {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.delete-account-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.delete-account-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
 @media (max-width: 768px) {
   .logo-section {
     gap: 2px; /* Very small gap on mobile */
