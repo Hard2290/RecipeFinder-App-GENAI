@@ -984,6 +984,12 @@ const RecipeFinderApp = () => {
           onClose={() => setIsLoginModalOpen(false)}
         />
 
+        {/* Delete Account Modal */}
+        <DeleteAccountModal
+          isOpen={isDeleteAccountOpen}
+          onClose={() => setIsDeleteAccountOpen(false)}
+        />
+
         {/* Your Recipes Page */}
         <YourRecipesPage
           isOpen={isYourRecipesOpen}
