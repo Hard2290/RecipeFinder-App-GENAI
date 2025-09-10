@@ -602,6 +602,110 @@ async def get_current_user_info(current_user_id: str = Depends(get_current_user)
         created_at=user["created_at"]
     )
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest):
+    """Send password reset email"""
+    user = await db.users.find_one({"email": request.email})
+    if not user:
+        # Don't reveal if email exists or not for security
+        return {"message": "If your email is in our system, you will receive a password reset link shortly."}
+    
+    # Create reset token
+    reset_token = create_reset_token()
+    expires_at = datetime.utcnow() + timedelta(hours=1)  # Token expires in 1 hour
+    
+    # Store reset token
+    password_reset = PasswordResetToken(
+        user_id=user["id"],
+        token=reset_token,
+        expires_at=expires_at
+    )
+    
+    await db.password_resets.insert_one(password_reset.dict())
+    
+    # Update user with reset token info
+    await db.users.update_one(
+        {"id": user["id"]},
+        {
+            "$set": {
+                "reset_token": reset_token,
+                "reset_token_expires": expires_at
+            }
+        }
+    )
+    
+    # Send email (mock implementation)
+    email_sent = await send_password_reset_email(user["email"], reset_token, user["name"])
+    
+    if email_sent:
+        return {"message": "If your email is in our system, you will receive a password reset link shortly."}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send reset email. Please try again later.")
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    """Reset password using reset token"""
+    # Find valid reset token
+    reset_record = await db.password_resets.find_one({
+        "token": request.reset_token,
+        "used": False,
+        "expires_at": {"$gt": datetime.utcnow()}
+    })
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Find user
+    user = await db.users.find_one({"id": reset_record["user_id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update password
+    new_password_hash = hash_password(request.new_password)
+    await db.users.update_one(
+        {"id": user["id"]},
+        {
+            "$set": {
+                "password_hash": new_password_hash,
+                "reset_token": None,
+                "reset_token_expires": None
+            }
+        }
+    )
+    
+    # Mark reset token as used
+    await db.password_resets.update_one(
+        {"id": reset_record["id"]},
+        {"$set": {"used": True}}
+    )
+    
+    return {"message": "Password reset successfully. You can now login with your new password."}
+
+@api_router.delete("/auth/delete-account")
+async def delete_account(request: DeleteAccountRequest, current_user_id: str = Depends(get_current_user)):
+    """Delete user account and all associated data"""
+    # Verify user exists
+    user = await db.users.find_one({"id": current_user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify password
+    if not verify_password(request.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    try:
+        # Delete all user data
+        await db.users.delete_one({"id": current_user_id})
+        await db.saved_recipes.delete_many({"user_id": current_user_id})
+        await db.custom_recipes.delete_many({"user_id": current_user_id})
+        await db.password_resets.delete_many({"user_id": current_user_id})
+        
+        return {"message": "Account and all associated data deleted successfully"}
+        
+    except Exception as e:
+        logging.error(f"Error deleting account: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete account. Please try again later.")
+
 # Recipe management endpoints
 @api_router.post("/recipes/save-favorite")
 async def save_favorite_recipe(request: SaveRecipeRequest, current_user_id: str = Depends(get_current_user)):
