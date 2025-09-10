@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +16,7 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const { login, register } = useAuth();
 
@@ -57,106 +59,143 @@ const LoginModal = ({ isOpen, onClose }) => {
     setFormData({ name: '', email: '', password: '' });
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="auth-modal max-w-md">
-        <DialogHeader>
-          <DialogTitle className="auth-title">
-            {isLogin ? 'Welcome Back!' : 'Join Recipe Finder'}
-          </DialogTitle>
-        </DialogHeader>
+  const handleForgotPassword = () => {
+    setIsForgotPasswordOpen(true);
+  };
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {!isLogin && (
+  const handleBackToLogin = () => {
+    setIsForgotPasswordOpen(false);
+  };
+
+  const handleClose = () => {
+    setFormData({ name: '', email: '', password: '' });
+    setError('');
+    setIsForgotPasswordOpen(false);
+    onClose();
+  };
+
+  return (
+    <>
+      <Dialog open={isOpen && !isForgotPasswordOpen} onOpenChange={handleClose}>
+        <DialogContent className="auth-modal max-w-md">
+          <DialogHeader>
+            <DialogTitle className="auth-title">
+              {isLogin ? 'Welcome Back!' : 'Join Recipe Finder'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {!isLogin && (
+              <div className="form-group">
+                <div className="input-with-icon">
+                  <User className="input-icon" />
+                  <Input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="auth-input"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="form-group">
               <div className="input-with-icon">
-                <User className="input-icon" />
+                <Mail className="input-icon" />
                 <Input
-                  type="text"
-                  name="name"
-                  placeholder="Full Name"
-                  value={formData.name}
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
                   onChange={handleInputChange}
                   required
                   className="auth-input"
                 />
               </div>
             </div>
-          )}
 
-          <div className="form-group">
-            <div className="input-with-icon">
-              <Mail className="input-icon" />
-              <Input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="auth-input"
-              />
+            <div className="form-group">
+              <div className="input-with-icon">
+                <Lock className="input-icon" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className="auth-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="password-toggle"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <div className="input-with-icon">
-              <Lock className="input-icon" />
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                className="auth-input"
-              />
+            {/* Forgot Password Link - Only show in login mode */}
+            {isLogin && (
+              <div className="forgot-password-link">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="forgot-password-btn"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <div className="error-message auth-error">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="auth-submit-btn"
+            >
+              {loading ? (
+                <>
+                  <div className="loading-spinner-small"></div>
+                  {isLogin ? 'Signing In...' : 'Creating Account...'}
+                </>
+              ) : (
+                isLogin ? 'Sign In' : 'Create Account'
+              )}
+            </Button>
+
+            <div className="auth-switch">
+              <span>
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+              </span>
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
+                onClick={toggleMode}
+                className="auth-switch-btn"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {isLogin ? 'Sign Up' : 'Sign In'}
               </button>
             </div>
-          </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-          {error && (
-            <div className="error-message auth-error">
-              {error}
-            </div>
-          )}
-
-          <Button
-            type="submit"
-            disabled={loading}
-            className="auth-submit-btn"
-          >
-            {loading ? (
-              <>
-                <div className="loading-spinner-small"></div>
-                {isLogin ? 'Signing In...' : 'Creating Account...'}
-              </>
-            ) : (
-              isLogin ? 'Sign In' : 'Create Account'
-            )}
-          </Button>
-
-          <div className="auth-switch">
-            <span>
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-            </span>
-            <button
-              type="button"
-              onClick={toggleMode}
-              className="auth-switch-btn"
-            >
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+        onBackToLogin={handleBackToLogin}
+      />
+    </>
   );
 };
 
