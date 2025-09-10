@@ -79,6 +79,16 @@ class User(BaseModel):
     name: str
     password_hash: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    reset_token: Optional[str] = None
+    reset_token_expires: Optional[datetime] = None
+
+class PasswordResetToken(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    token: str
+    expires_at: datetime
+    used: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserResponse(BaseModel):
     id: str
